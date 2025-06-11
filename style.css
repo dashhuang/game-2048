@@ -1,0 +1,423 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: #faf8ef;
+    color: #776e65;
+    font-size: 18px;
+    line-height: 1.42857143;
+    position: relative;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 60px;
+    font-weight: bold;
+    color: #776e65;
+    margin: 0;
+    display: inline-block;
+}
+
+.score-container {
+    float: right;
+    text-align: right;
+    position: relative;
+}
+
+.score-box {
+    display: inline-block;
+    background: #bbada0;
+    padding: 10px 20px;
+    border-radius: 3px;
+    color: white;
+    margin-left: 10px;
+    text-align: center;
+    position: relative;
+}
+
+.score-label {
+    font-size: 13px;
+    color: #eee4da;
+    text-transform: uppercase;
+}
+
+.score, .best-score {
+    font-size: 25px;
+    font-weight: bold;
+    color: white;
+    margin-top: 5px;
+}
+
+.controls {
+    margin-bottom: 20px;
+    clear: both;
+}
+
+.btn-new, .btn-undo {
+    background: #8f7a66;
+    border-radius: 3px;
+    padding: 10px 20px;
+    color: #f9f6f2;
+    text-decoration: none;
+    font-weight: bold;
+    margin-right: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.btn-new:hover, .btn-undo:hover {
+    background: #9f8a76;
+}
+
+.btn-undo.disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-undo.disabled:hover {
+    background: #ccc;
+}
+
+.game-container {
+    position: relative;
+    background: #bbada0;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.grid-container {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    aspect-ratio: 1;
+}
+
+.grid-row {
+    display: contents;
+}
+
+.grid-cell {
+    background: rgba(238, 228, 218, 0.35);
+    border-radius: 6px;
+}
+
+.tile-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    z-index: 2;
+}
+
+.tile {
+    position: absolute;
+    width: calc((100% - 30px) / 4);
+    height: calc((100% - 30px) / 4);
+    background: #eee4da;
+    border-radius: 6px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    transition: all 0.15s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+/* 不同数字的颜色 */
+.tile-2 { background: #eee4da; color: #776e65; }
+.tile-4 { background: #ede0c8; color: #776e65; }
+.tile-8 { background: #f2b179; color: #f9f6f2; }
+.tile-16 { background: #f59563; color: #f9f6f2; }
+.tile-32 { background: #f67c5f; color: #f9f6f2; }
+.tile-64 { background: #f65e3b; color: #f9f6f2; }
+.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 35px; }
+.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 35px; }
+.tile-512 { background: #edc850; color: #f9f6f2; font-size: 35px; }
+.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 30px; }
+.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 30px; }
+
+/* 更大数字的样式 */
+.tile-4096 { background: #3c3a32; color: #f9f6f2; font-size: 25px; }
+.tile-8192 { background: #3c3a32; color: #f9f6f2; font-size: 25px; }
+.tile-16384 { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
+.tile-32768 { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
+.tile-65536 { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
+
+/* 新增方块动画 */
+.tile-new {
+    animation: appear 0.2s ease-in-out;
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 合并方块动画 */
+.tile-merged {
+    animation: pop 0.2s ease-in-out;
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 撤销动画 - 方块消失 */
+.tile-disappear {
+    animation: disappear 0.15s ease-in-out;
+}
+
+@keyframes disappear {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+/* 撤销动画 - 方块重新出现（分裂效果） */
+.tile-reappear {
+    animation: reappear 0.2s ease-in-out;
+}
+
+@keyframes reappear {
+    0% {
+        opacity: 0;
+        transform: scale(1.2) rotate(180deg);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(0.9) rotate(90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.game-message {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 100;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.game-message p {
+    font-size: 60px;
+    font-weight: bold;
+    height: 60px;
+    line-height: 60px;
+    margin-top: 200px;
+}
+
+.game-message.game-won {
+    background: rgba(237, 194, 46, 0.9);
+    color: #f9f6f2;
+}
+
+.game-message.game-over {
+    background: rgba(238, 228, 218, 0.95);
+    color: #776e65;
+}
+
+.restart-button {
+    display: inline-block;
+    background: #8f7a66;
+    border-radius: 3px;
+    padding: 10px 20px;
+    color: #f9f6f2;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.instructions {
+    margin-top: 30px;
+    line-height: 1.6;
+    color: #776e65;
+    font-size: 16px;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 520px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 40px;
+    }
+    
+    .score-box {
+        padding: 8px 15px;
+        margin-left: 5px;
+    }
+    
+    .score-label {
+        font-size: 11px;
+    }
+    
+    .score, .best-score {
+        font-size: 20px;
+    }
+    
+    .btn-new, .btn-undo {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    .game-container {
+        padding: 8px;
+    }
+    
+    .grid-container {
+        gap: 8px;
+    }
+    
+    .tile {
+        width: calc((100% - 24px) / 4);
+        height: calc((100% - 24px) / 4);
+        font-size: 35px;
+    }
+    
+    .tile-128, .tile-256, .tile-512 {
+        font-size: 30px;
+    }
+    
+    .tile-1024, .tile-2048 {
+        font-size: 25px;
+    }
+    
+    .game-message p {
+        font-size: 40px;
+        margin-top: 150px;
+    }
+    
+    .instructions {
+        font-size: 14px;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+    .btn-new:hover, .btn-undo:hover {
+        background: #8f7a66;
+    }
+}
+
+/* 防止文本选择 */
+.game-container {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* 分数增加动画 */
+.score-addition {
+    position: absolute;
+    right: 20px;
+    color: #776e65;
+    font-size: 20px;
+    font-weight: bold;
+    animation: score-addition 0.8s ease-in-out;
+    z-index: 20;
+}
+
+@keyframes score-addition {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+/* 撤销奖励动画 */
+.undo-reward {
+    position: absolute;
+    right: 20px;
+    top: 80px;
+    background: #8f7a66;
+    color: #f9f6f2;
+    padding: 8px 16px;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: bold;
+    animation: undo-reward 1s ease-in-out;
+    z-index: 30;
+}
+
+@keyframes undo-reward {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+} 

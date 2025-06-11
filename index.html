@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2048</h1>
+            <div class="score-container">
+                <div class="score-box">
+                    <div class="score-label">当前分数</div>
+                    <div class="score" id="score">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-label">最高分数</div>
+                    <div class="best-score" id="best-score">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-message" id="game-message">
+            <p></p>
+            <button class="restart-button" onclick="game.restart()">再来一局</button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-new" onclick="game.restart()">新游戏</button>
+            <button class="btn-undo" onclick="game.undo()">撤销</button>
+        </div>
+        
+        <div class="game-container">
+            <div class="grid-container">
+                <!-- 4x4的网格背景 -->
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+            </div>
+            
+            <div class="tile-container" id="tile-container">
+                <!-- 数字方块将动态生成在这里 -->
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p><strong>游戏说明：</strong> 使用方向键或滑动来移动方块。相同数字的方块碰撞时会合并成一个！</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
