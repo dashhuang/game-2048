@@ -498,6 +498,7 @@ class Game2048 {
     }
     
     createTileElement(row, col, tileData, isNew = false, isMerged = false, isReappear = false) {
+        // 创建主容器
         const tile = document.createElement('div');
         tile.className = `tile tile-${tileData.value}`;
         tile.id = `tile-${tileData.id}`;
@@ -510,7 +511,17 @@ class Game2048 {
         if (isReappear) {
             tile.classList.add('tile-reappear');
         }
-        tile.textContent = tileData.value;
+        
+        // 创建光泽层
+        const shine = document.createElement('div');
+        shine.className = 'tile-shine';
+        tile.appendChild(shine);
+        
+        // 创建文字层
+        const text = document.createElement('div');
+        text.className = 'tile-text';
+        text.textContent = tileData.value;
+        tile.appendChild(text);
         
         const { top, left } = this.getPosition(row, col);
         tile.style.top = top;

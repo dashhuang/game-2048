@@ -139,7 +139,7 @@ h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* 游戏容器 - 液态玻璃效果 */
+/* 游戏容器 - 透明背景 */
 .game-container {
     position: relative;
     background: transparent;
@@ -148,49 +148,21 @@ h1 {
     max-width: 500px;
     margin: 0 auto;
     padding: 10px;
-    /* 移除滤镜，不在容器上应用 */
-    overflow: hidden;
+    overflow: visible;
 }
 
-/* 液态玻璃效果背景层 */
+/* 移除液态玻璃背景层 */
 .liquid-glass-effect {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: rgba(30, 40, 60, 0.2);
-    backdrop-filter: blur(15px) saturate(150%);
-    -webkit-backdrop-filter: blur(15px) saturate(150%);
-    filter: url(#liquid-glass);
-    border-radius: 20px;
-    overflow: hidden;
-    isolation: isolate;
+    display: none;
 }
 
-/* 游戏容器的玻璃外框 */
-.game-container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    pointer-events: none;
-}
-
-/* 游戏容器的光泽效果 */
+/* 移除游戏容器的伪元素 */
+.game-container::before,
 .game-container::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    border-radius: 20px;
-    box-shadow: 
-        inset 2px 2px 4px rgba(255, 255, 255, 0.2),
-        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
-    pointer-events: none;
+    display: none;
 }
 
-/* 游戏网格容器 */
+/* 游戏网格容器 - 透明背景 */
 .grid-container {
     position: relative;
     background: transparent;
@@ -202,21 +174,16 @@ h1 {
     grid-template-rows: repeat(4, 1fr);
     gap: 10px;
     padding: 10px;
-    z-index: 3;  /* 在液态效果层之上 */
+    z-index: 1;
 }
 
 .grid-row {
     display: contents;
 }
 
-/* 游戏格子背景 */
+/* 隐藏游戏格子背景 */
 .grid-cell {
-    background: rgba(40, 50, 70, 0.3);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    /* 移除滤镜 */
+    display: none;
 }
 
 /* 方块容器 */
@@ -226,233 +193,115 @@ h1 {
     left: 10px;
     right: 10px;
     bottom: 10px;
-    z-index: 4;  /* 在网格之上 */
+    z-index: 2;
 }
 
-/* 数字方块样式 - 液态玻璃水滴效果 */
+/* 数字方块 - 液态玻璃效果（完全按照示例） */
 .tile {
     position: absolute;
     width: calc((100% - 30px) / 4);
     height: calc((100% - 30px) / 4);
-    font-size: 55px;
-    font-weight: bold;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    transition: all 0.15s ease-in-out;
-    z-index: 10;
-    
-    /* 液态玻璃基础效果 - 减弱模糊 */
-    backdrop-filter: blur(8px) brightness(1.1);
-    -webkit-backdrop-filter: blur(8px) brightness(1.1);
-    
-    /* 玻璃材质边框 */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    
-    /* 移除liquid-effect滤镜，不在方块上应用扭曲 */
-    
-    /* 多层阴影营造立体液体效果 */
-    box-shadow: 
-        /* 内部高光 */
-        inset 0 2px 4px rgba(255, 255, 255, 0.6),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-        /* 外部阴影 */
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        0 1px 3px rgba(0, 0, 0, 0.3),
-        /* 液体反光 */
-        0 -1px 0 rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+    border-radius: 16px;
 }
 
-/* 方块悬停效果 */
-.tile:hover {
-    transform: translateZ(30px) scale(1.02);
-    box-shadow: 
-        /* 内部高光 */
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.5),
-        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.1),
-        /* 外部阴影 - 更强烈 */
-        0 25px 50px rgba(0, 0, 0, 0.4),
-        0 15px 30px rgba(0, 0, 0, 0.3),
-        0 5px 15px rgba(0, 0, 0, 0.2),
-        /* 彩色反射 */
-        0 0 30px rgba(255, 255, 255, 0.1);
-}
-
-/* 高光反射效果 */
+/* 液态玻璃效果层 */
 .tile::before {
     content: '';
     position: absolute;
-    top: 3px;
-    left: 3px;
-    right: 3px;
-    height: 40%;
-    background: linear-gradient(180deg, 
-        rgba(255, 255, 255, 0.4) 0%, 
-        rgba(255, 255, 255, 0.1) 60%,
-        transparent 100%);
-    border-radius: 18px 18px 100px 100px;
-    pointer-events: none;
+    z-index: 0;
+    inset: 0;
+    backdrop-filter: blur(3px);
+    filter: url(#liquid-glass);
+    overflow: hidden;
+    isolation: isolate;
 }
 
-/* 底部反射光 */
+/* 颜色层 */
 .tile::after {
     content: '';
+    z-index: 1;
     position: absolute;
-    bottom: 10px;
-    left: 20%;
-    right: 20%;
-    height: 30%;
-    background: radial-gradient(ellipse at center bottom, 
-        rgba(255, 255, 255, 0.3) 0%, 
-        transparent 70%);
-    filter: blur(6px);
+    inset: 0;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* 创建额外的光泽层 */
+.tile-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+                inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
     pointer-events: none;
+    border-radius: 16px;
 }
 
-/* 不同数字的颜色 - 液态玻璃水滴效果 */
-.tile-2 {
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%,   /* 降低不透明度 */
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(255, 255, 255, 0.1) 100%);
-    color: #f8f8f8;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+/* 方块文字 */
+.tile-text {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 55px;
+    font-weight: 600;
+    color: #333;
 }
 
-.tile-4 {
-    background: linear-gradient(135deg, 
-        rgba(255, 246, 230, 0.2) 0%,   /* 降低不透明度 */
-        rgba(255, 246, 230, 0.05) 50%,
-        rgba(255, 236, 200, 0.15) 100%);
-    color: #f8f8f8;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+/* 悬停效果 */
+.tile:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 0, 0, 0.15);
 }
 
-.tile-8 {
-    background: linear-gradient(135deg, 
-        rgba(255, 178, 120, 0.3) 0%,   /* 降低不透明度 */
-        rgba(255, 178, 120, 0.1) 50%,
-        rgba(255, 158, 100, 0.25) 100%);
-    color: #f9f6f2;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+/* 移除之前的所有方块颜色样式，使用统一的液态玻璃效果 */
+.tile-2, .tile-4, .tile-8, .tile-16, .tile-32, .tile-64,
+.tile-128, .tile-256, .tile-512, .tile-1024, .tile-2048,
+.tile-4096, .tile-8192, .tile-16384, .tile-32768, .tile-65536 {
+    background: none;
+    color: inherit;
+    text-shadow: none;
+    box-shadow: none;
 }
 
-.tile-16 {
-    background: linear-gradient(135deg, 
-        rgba(255, 150, 100, 0.35) 0%,   /* 降低不透明度 */
-        rgba(255, 150, 100, 0.15) 50%,
-        rgba(255, 130, 80, 0.3) 100%);
-    color: #f9f6f2;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+/* 调整不同数字的字体大小 */
+.tile-128 .tile-text,
+.tile-256 .tile-text,
+.tile-512 .tile-text {
+    font-size: 45px;
 }
 
-.tile-32 { 
-    background: linear-gradient(135deg, 
-        rgba(246, 124, 95, 0.4) 0%, 
-        rgba(246, 124, 95, 0.15) 40%,
-        rgba(246, 124, 95, 0.02) 100%);
-    color: #ff9b7a;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.tile-64 { 
-    background: linear-gradient(135deg, 
-        rgba(246, 94, 59, 0.45) 0%, 
-        rgba(246, 94, 59, 0.2) 40%,
-        rgba(246, 94, 59, 0.02) 100%);
-    color: #ff7a52;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.tile-128 { 
-    background: linear-gradient(135deg, 
-        rgba(237, 207, 114, 0.4) 0%, 
-        rgba(237, 207, 114, 0.15) 40%,
-        rgba(237, 207, 114, 0.02) 100%);
-    color: #ffe366;
+.tile-1024 .tile-text,
+.tile-2048 .tile-text {
     font-size: 35px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-.tile-256 { 
-    background: linear-gradient(135deg, 
-        rgba(237, 204, 97, 0.45) 0%, 
-        rgba(237, 204, 97, 0.2) 40%,
-        rgba(237, 204, 97, 0.02) 100%);
-    color: #ffdf4d;
-    font-size: 35px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.tile-512 { 
-    background: linear-gradient(135deg, 
-        rgba(237, 200, 80, 0.5) 0%, 
-        rgba(237, 200, 80, 0.2) 40%,
-        rgba(237, 200, 80, 0.02) 100%);
-    color: #ffdb33;
-    font-size: 35px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.tile-1024 { 
-    background: linear-gradient(135deg, 
-        rgba(237, 197, 63, 0.55) 0%, 
-        rgba(237, 197, 63, 0.25) 40%,
-        rgba(237, 197, 63, 0.02) 100%);
-    color: #ffd71a;
+.tile-4096 .tile-text,
+.tile-8192 .tile-text {
     font-size: 30px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-.tile-2048 { 
-    background: linear-gradient(135deg, 
-        rgba(237, 194, 46, 0.6) 0%, 
-        rgba(237, 194, 46, 0.3) 40%,
-        rgba(237, 194, 46, 0.05) 100%);
-    color: #ffd400;
-    font-size: 30px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-    /* 特殊发光效果 */
-    box-shadow: 
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
-        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.1),
-        0 20px 40px rgba(237, 194, 46, 0.3),
-        0 10px 20px rgba(0, 0, 0, 0.3),
-        0 2px 6px rgba(0, 0, 0, 0.1),
-        0 0 40px rgba(237, 194, 46, 0.4);
+.tile-16384 .tile-text,
+.tile-32768 .tile-text,
+.tile-65536 .tile-text {
+    font-size: 25px;
 }
-
-/* 更大数字的样式 */
-.tile-4096, .tile-8192, .tile-16384, .tile-32768, .tile-65536 { 
-    background: linear-gradient(135deg, 
-        rgba(160, 130, 255, 0.6) 0%, 
-        rgba(160, 130, 255, 0.3) 40%,
-        rgba(160, 130, 255, 0.05) 100%);
-    color: #b8a0ff;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-    box-shadow: 
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
-        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.1),
-        0 20px 40px rgba(160, 130, 255, 0.3),
-        0 10px 20px rgba(0, 0, 0, 0.3),
-        0 2px 6px rgba(0, 0, 0, 0.1),
-        0 0 40px rgba(160, 130, 255, 0.4);
-}
-
-.tile-4096, .tile-8192 { font-size: 25px; }
-.tile-16384, .tile-32768, .tile-65536 { font-size: 20px; }
 
 /* 新增方块动画 */
 .tile-new {
-    animation: appear 0.2s ease-in-out;
+    animation: appear 0.3s ease-out;
 }
 
 @keyframes appear {
     0% {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(0);
     }
     100% {
         opacity: 1;
@@ -462,7 +311,7 @@ h1 {
 
 /* 合并方块动画 */
 .tile-merged {
-    animation: pop 0.2s ease-in-out;
+    animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes pop {
@@ -470,7 +319,7 @@ h1 {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.15);
+        transform: scale(1.1);
     }
     100% {
         transform: scale(1);
@@ -628,16 +477,29 @@ h1 {
     .tile {
         width: calc((100% - 24px) / 4);
         height: calc((100% - 24px) / 4);
-        font-size: 35px;
-        line-height: 1;
     }
     
-    .tile-128, .tile-256, .tile-512 {
+    .tile-text {
+        font-size: 35px;
+    }
+    
+    .tile-128 .tile-text,
+    .tile-256 .tile-text,
+    .tile-512 .tile-text {
         font-size: 30px;
     }
     
-    .tile-1024, .tile-2048 {
+    .tile-1024 .tile-text,
+    .tile-2048 .tile-text {
         font-size: 25px;
+    }
+    
+    .tile-4096 .tile-text,
+    .tile-8192 .tile-text,
+    .tile-16384 .tile-text,
+    .tile-32768 .tile-text,
+    .tile-65536 .tile-text {
+        font-size: 20px;
     }
     
     .game-message p {
