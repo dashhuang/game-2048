@@ -23,4 +23,7 @@ yarn-error.log*
 
 # 构建输出（如果将来添加构建流程）
 dist/
-build/ 
+build/
+
+# Reference projects
+liquid-glass-effect-macos/ 
