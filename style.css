@@ -4,7 +4,10 @@
     padding: 0;
 }
 
-
+html {
+    height: 100%;
+    overflow: hidden;
+}
 
 /* SVG滤镜容器 */
 .svg-filters {
@@ -14,11 +17,6 @@
     pointer-events: none;
 }
 
-
-
-
-
-
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     background: #000;
@@ -26,7 +24,8 @@ body {
     font-size: 18px;
     line-height: 1.42857143;
     position: relative;
-    min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* 背景壁纸 */
@@ -52,6 +51,10 @@ body::before {
     z-index: 1;
     text-align: center;
     min-width: 320px; /* 添加最小宽度，防止内容被过度挤压 */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .header {
@@ -226,6 +229,7 @@ h1 {
     padding: 10px;
     /* 移除所有效果，只作为定位容器 */
     overflow: visible;
+    flex: 0 0 auto; /* 不要扩展，保持固定大小 */
 }
 
 /* 移除旧的液态玻璃效果层 */
@@ -578,7 +582,7 @@ h1 {
 }
 
 .instructions {
-    margin-top: 30px;
+    margin-top: 20px;
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.7);
     font-size: 16px;
@@ -588,13 +592,14 @@ h1 {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    padding: 20px;
+    padding: 15px;
+    flex-shrink: 0; /* 不要收缩 */
 }
 
 /* 响应式设计 */
 @media screen and (max-width: 520px) {
     .container {
-        padding: 10px;
+        padding: 15px 10px 10px 10px;
     }
     
     .header {
@@ -602,6 +607,7 @@ h1 {
         /* flex-direction: column; -- 移除此行 */
         align-items: center;
         gap: 10px; /* 减小间距 */
+        margin-bottom: 20px; /* 减小底部间距 */
     }
     
     h1 {
@@ -628,6 +634,10 @@ h1 {
     
     .score, .best-score {
         font-size: 18px; /* 减小分数字体 */
+    }
+    
+    .controls {
+        margin-bottom: 15px; /* 减小底部间距 */
     }
     
     .btn-new, .btn-undo {
@@ -678,7 +688,16 @@ h1 {
     }
     
     .instructions {
-        font-size: 14px;
+        font-size: 13px;
+        padding: 10px;
+        margin-top: 15px;
+    }
+    
+    /* 在更小的屏幕上隐藏游戏说明 */
+    @media screen and (max-height: 700px) {
+        .instructions {
+            display: none;
+        }
     }
 }
 

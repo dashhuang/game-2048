@@ -40,6 +40,16 @@ class Game2048 {
         
         this.setup();
         this.updateDisplay();
+        
+        // 防止页面滚动
+        this.preventPageScroll();
+    }
+    
+    preventPageScroll() {
+        // 防止整个页面的触摸滚动
+        document.body.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
     }
     
     setup() {
