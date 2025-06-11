@@ -45,13 +45,23 @@
         <div class="header">
             <h1>2048</h1>
             <div class="score-container">
-                <div class="score-box">
-                    <div class="score-label">当前分数</div>
-                    <div class="score" id="score">0</div>
+                <div class="score-box liquidGlass-wrapper">
+                    <div class="liquidGlass-effect"></div>
+                    <div class="liquidGlass-tint"></div>
+                    <div class="liquidGlass-shine"></div>
+                    <div class="liquidGlass-content">
+                        <div class="score-label">当前分数</div>
+                        <div class="score" id="score">0</div>
+                    </div>
                 </div>
-                <div class="score-box">
-                    <div class="score-label">最高分数</div>
-                    <div class="best-score" id="best-score">0</div>
+                <div class="score-box liquidGlass-wrapper">
+                    <div class="liquidGlass-effect"></div>
+                    <div class="liquidGlass-tint"></div>
+                    <div class="liquidGlass-shine"></div>
+                    <div class="liquidGlass-content">
+                        <div class="score-label">最高分数</div>
+                        <div class="best-score" id="best-score">0</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,8 +72,18 @@
         </div>
         
         <div class="controls">
-            <button class="btn-new" onclick="game.restart()">新游戏</button>
-            <button class="btn-undo" onclick="game.undo()">撤销</button>
+            <button class="btn-new liquidGlass-wrapper" onclick="game.restart()">
+                <span class="liquidGlass-effect"></span>
+                <span class="liquidGlass-tint"></span>
+                <span class="liquidGlass-shine"></span>
+                <span class="liquidGlass-content">新游戏</span>
+            </button>
+            <button class="btn-undo liquidGlass-wrapper" onclick="game.undo()">
+                <span class="liquidGlass-effect"></span>
+                <span class="liquidGlass-tint"></span>
+                <span class="liquidGlass-shine"></span>
+                <span class="liquidGlass-content">撤销</span>
+            </button>
         </div>
         
         <div class="game-container">
