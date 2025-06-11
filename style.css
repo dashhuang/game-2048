@@ -255,13 +255,26 @@ h1 {
   inset: 0; /* Changed back to 0 to ensure full coverage */
   z-index: 2;
   overflow: hidden;
-  /* Asymmetrical highlight mimicking a top-left light source */
+  /* Subtle gradient to enhance the asymmetrical lighting */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  /* iOS-style asymmetrical lighting with four-corner control */
   box-shadow: 
-    /* Separate highlights for top and left edges for better corner rendering */
-    inset 0 1px 1px rgba(255, 255, 255, 0.6), /* Top edge highlight */
-    inset 1px 0 1px rgba(255, 255, 255, 0.6), /* Left edge highlight */
-    /* Faint highlight from bottom-right */
-    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
+    /* Top-left corner - brightest */
+    inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+    /* Additional top edge highlight */
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    /* Additional left edge highlight */
+    inset 1px 0 1px rgba(255, 255, 255, 0.4),
+    /* Bottom-right corner - subtle highlight */
+    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15),
+    /* Top-right and bottom-left - darker (no additional highlights) */
+    inset 0 0 0 rgba(0, 0, 0, 0); /* Placeholder for visual balance */
   border-radius: var(--tile-border-radius);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
