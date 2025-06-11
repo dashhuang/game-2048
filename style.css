@@ -697,6 +697,17 @@ h1 {
     color: rgba(255, 255, 255, 0.9);
 }
 
+.game-message.game-stuck {
+    background: rgba(246, 124, 95, 0.4); /* 一个醒目的颜色 */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #f9f6f2;
+}
+
+.game-message.game-stuck .restart-button {
+    display: none; /* 卡住时隐藏"再来一局"按钮 */
+}
+
 .restart-button {
     display: inline-block;
     background: rgba(255, 255, 255, 0.15);
