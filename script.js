@@ -483,8 +483,11 @@ class Game2048 {
     updateUndoButton() {
         const undoButton = document.querySelector('.btn-undo');
         if (undoButton) {
-            // 更新按钮文本显示剩余次数
-            undoButton.textContent = `撤销 (${this.undoCount})`;
+            // 更新按钮内部content层的文本显示剩余次数
+            const contentSpan = undoButton.querySelector('.liquidGlass-content');
+            if (contentSpan) {
+                contentSpan.textContent = `撤销 (${this.undoCount})`;
+            }
             
             // 如果没有撤销次数或没有历史记录，禁用按钮
             if (this.undoCount === 0 || this.stateHistory.length <= 1) {

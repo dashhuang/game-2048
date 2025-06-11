@@ -53,28 +53,30 @@ body::before {
 }
 
 .header {
-    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
 }
 
 h1 {
+    color: rgba(255, 255, 255, 0.9);
     font-size: 60px;
     font-weight: bold;
-    color: rgba(255, 255, 255, 0.9);
     margin: 0;
-    display: inline-block;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .score-container {
-    float: right;
-    text-align: right;
-    position: relative;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
 }
 
 .score-box {
-    display: inline-block;
+    display: block;
     position: relative;
-    margin-left: 10px;
+    margin-left: 0;
     --ui-border-radius: 10px;
     border-radius: var(--ui-border-radius);
     overflow: hidden;
@@ -583,8 +585,18 @@ h1 {
         padding: 10px;
     }
     
+    .header {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
     h1 {
         font-size: 40px;
+    }
+    
+    .score-container {
+        gap: 10px;
     }
     
     .score-box {
