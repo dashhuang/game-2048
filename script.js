@@ -535,13 +535,13 @@ class Game2048 {
                 contentSpan.textContent = `撤销 (${this.undoCount})`;
             }
             
-            // 如果没有撤销次数或没有历史记录，禁用按钮
-            if (this.undoCount === 0 || this.stateHistory.length <= 1) {
-                undoButton.disabled = true;
-                undoButton.classList.add('disabled');
-            } else {
+            // 修复：当历史记录大于1时就应该启用撤销
+            if (this.undoCount > 0 && this.stateHistory.length > 1) {
                 undoButton.disabled = false;
                 undoButton.classList.remove('disabled');
+            } else {
+                undoButton.disabled = true;
+                undoButton.classList.add('disabled');
             }
         }
     }
