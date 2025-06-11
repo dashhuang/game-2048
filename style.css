@@ -246,7 +246,8 @@ h1 {
   z-index: 1;
   position: absolute;
   inset: 0;
-  border-radius: calc(var(--tile-border-radius) - 2px);
+  /* Match the parent's border-radius exactly */
+  border-radius: var(--tile-border-radius);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
@@ -254,19 +255,20 @@ h1 {
   position: absolute;
   inset: 0;
   z-index: 2;
-  overflow: hidden;
-  /* Asymmetrical highlight mimicking a top-left light source */
-  box-shadow: 
-    /* Separate highlights for top and left edges for better corner rendering */
-    inset 0 0.75px 1px rgba(255, 255, 255, 0.7), /* Top edge highlight */
-    inset 0.75px 0 1px rgba(255, 255, 255, 0.7), /* Left edge highlight */
-    /* Faint highlight from bottom-right */
-    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.2);
-  border-radius: calc(var(--tile-border-radius) - 2px);
+
+  /* Use border for a perfectly uniform highlight, replacing box-shadow */
+  box-sizing: border-box;
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+  border-left: 1px solid rgba(255, 255, 255, 0.7);
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+
+  /* Match the parent's border-radius exactly */
+  border-radius: var(--tile-border-radius);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
-/* This gradient conflicts with the new asymmetrical lighting, so it's removed. */
+/* This is no longer needed */
 .liquidGlass-shine::before {
   display: none;
 }
