@@ -255,14 +255,16 @@ h1 {
   inset: 0;
   z-index: 2;
   overflow: hidden;
-  /* 使用更均匀的内阴影来创建边缘光泽 */
+  /* 使用多重内阴影来精确模拟iOS的光照效果 */
   box-shadow: 
-    /* 顶部和左侧的细光泽 */
-    inset 1px 1px 2px 0 rgba(255, 255, 255, 0.6),
-    /* 底部和右侧的细阴影 */
-    inset -1px -1px 2px 0 rgba(0, 0, 0, 0.15),
-    /* 整体的柔和内发光 */
-    inset 0 0 10px rgba(255, 255, 255, 0.1);
+    /* 左上角 - 最强的白色高光 */
+    inset 2px 2px 3px 0 rgba(255, 255, 255, 0.7),
+    /* 右下角 - 较弱的白色高光 */
+    inset -1px -1px 2px 0 rgba(255, 255, 255, 0.2),
+    /* 左下角 - 轻微的暗边 */
+    inset 1px -1px 2px 0 rgba(0, 0, 0, 0.08),
+    /* 右上角 - 轻微的暗边 */
+    inset -1px 1px 2px 0 rgba(0, 0, 0, 0.08);
   border-radius: calc(var(--tile-border-radius) - 2px);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
@@ -274,12 +276,13 @@ h1 {
   top: 0;
   left: 0;
   right: 0;
-  height: 50%;
+  height: 40%;
+  /* 调整渐变，让左上角更亮 */
   background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.2) 0%,
-    rgba(255, 255, 255, 0.05) 30%,
-    transparent 100%
+    135deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 30%,
+    transparent 60%
   );
   border-radius: calc(var(--tile-border-radius) - 2px) calc(var(--tile-border-radius) - 2px) 0 0;
   pointer-events: none;
