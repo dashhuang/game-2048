@@ -4,6 +4,29 @@
     padding: 0;
 }
 
+/* 液态玻璃效果的CSS变量 */
+:root {
+    --liq-freq: 0.015;
+    --liq-scale: 18;
+}
+
+/* 液态玻璃动画 */
+@keyframes liquid {
+    0%   { --liq-freq: 0.012; }
+    50%  { --liq-freq: 0.022; }
+    100% { --liq-freq: 0.012; }
+}
+
+/* 支持CSS变量的浏览器才应用动态效果 */
+@supports (--css: variables) {
+    svg feTurbulence {
+        base-frequency: var(--liq-freq);
+    }
+    svg feDisplacementMap {
+        scale: var(--liq-scale);
+    }
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     background: #faf8ef;
@@ -147,27 +170,41 @@ h1 {
     align-items: center;
     justify-content: center;
     font-size: 40px;
+    
+    /* 液态玻璃效果 */
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    filter: url(#liquid);
+    background-color: rgba(238, 228, 218, 0.85);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: liquid 8s linear infinite;
+    /* 创建圆润的液态边缘 */
+    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 70%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 70%, transparent 100%);
+    
+    /* 性能优化 */
+    will-change: transform, filter;
 }
 
-/* 不同数字的颜色 */
-.tile-2 { background: #eee4da; color: #776e65; }
-.tile-4 { background: #ede0c8; color: #776e65; }
-.tile-8 { background: #f2b179; color: #f9f6f2; }
-.tile-16 { background: #f59563; color: #f9f6f2; }
-.tile-32 { background: #f67c5f; color: #f9f6f2; }
-.tile-64 { background: #f65e3b; color: #f9f6f2; }
-.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 35px; }
-.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 35px; }
-.tile-512 { background: #edc850; color: #f9f6f2; font-size: 35px; }
-.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 30px; }
-.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 30px; }
+/* 不同数字的颜色 - 调整为半透明以支持液态玻璃效果 */
+.tile-2 { background-color: rgba(238, 228, 218, 0.85); color: #776e65; }
+.tile-4 { background-color: rgba(237, 224, 200, 0.85); color: #776e65; }
+.tile-8 { background-color: rgba(242, 177, 121, 0.9); color: #f9f6f2; }
+.tile-16 { background-color: rgba(245, 149, 99, 0.9); color: #f9f6f2; }
+.tile-32 { background-color: rgba(246, 124, 95, 0.9); color: #f9f6f2; }
+.tile-64 { background-color: rgba(246, 94, 59, 0.9); color: #f9f6f2; }
+.tile-128 { background-color: rgba(237, 207, 114, 0.9); color: #f9f6f2; font-size: 35px; }
+.tile-256 { background-color: rgba(237, 204, 97, 0.9); color: #f9f6f2; font-size: 35px; }
+.tile-512 { background-color: rgba(237, 200, 80, 0.9); color: #f9f6f2; font-size: 35px; }
+.tile-1024 { background-color: rgba(237, 197, 63, 0.9); color: #f9f6f2; font-size: 30px; }
+.tile-2048 { background-color: rgba(237, 194, 46, 0.95); color: #f9f6f2; font-size: 30px; }
 
 /* 更大数字的样式 */
-.tile-4096 { background: #3c3a32; color: #f9f6f2; font-size: 25px; }
-.tile-8192 { background: #3c3a32; color: #f9f6f2; font-size: 25px; }
-.tile-16384 { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
-.tile-32768 { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
-.tile-65536 { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
+.tile-4096 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 25px; }
+.tile-8192 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 25px; }
+.tile-16384 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 20px; }
+.tile-32768 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 20px; }
+.tile-65536 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 20px; }
 
 /* 新增方块动画 */
 .tile-new {
@@ -185,9 +222,9 @@ h1 {
     }
 }
 
-/* 合并方块动画 */
+/* 合并方块动画 - 增强液态效果 */
 .tile-merged {
-    animation: pop 0.2s ease-in-out;
+    animation: pop 0.2s ease-in-out, liquid-burst 0.3s ease-out;
 }
 
 @keyframes pop {
@@ -199,6 +236,19 @@ h1 {
     }
     100% {
         transform: scale(1);
+    }
+}
+
+/* 合并时的液态爆发效果 */
+@keyframes liquid-burst {
+    0% {
+        --liq-scale: 18;
+    }
+    50% {
+        --liq-scale: 32;
+    }
+    100% {
+        --liq-scale: 18;
     }
 }
 
@@ -354,6 +404,41 @@ h1 {
 @media (hover: none) {
     .btn-new:hover, .btn-undo:hover {
         background: #8f7a66;
+    }
+}
+
+/* 不支持backdrop-filter的浏览器降级方案 */
+@supports not (backdrop-filter: blur(1px)) {
+    .tile {
+        /* 移除液态玻璃效果，使用纯色背景 */
+        filter: none !important;
+        animation: none !important;
+        mask-image: none !important;
+        -webkit-mask-image: none !important;
+    }
+    
+    .tile-2 { background-color: #eee4da !important; }
+    .tile-4 { background-color: #ede0c8 !important; }
+    .tile-8 { background-color: #f2b179 !important; }
+    .tile-16 { background-color: #f59563 !important; }
+    .tile-32 { background-color: #f67c5f !important; }
+    .tile-64 { background-color: #f65e3b !important; }
+    .tile-128 { background-color: #edcf72 !important; }
+    .tile-256 { background-color: #edcc61 !important; }
+    .tile-512 { background-color: #edc850 !important; }
+    .tile-1024 { background-color: #edc53f !important; }
+    .tile-2048 { background-color: #edc22e !important; }
+}
+
+/* 减少动画模式 */
+@media (prefers-reduced-motion: reduce) {
+    .tile {
+        animation-play-state: paused !important;
+        filter: none !important;
+    }
+    
+    @keyframes liquid {
+        0%, 100% { --liq-freq: 0.015; }
     }
 }
 

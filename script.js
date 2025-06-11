@@ -61,6 +61,9 @@ class Game2048 {
         
         // 更新撤销按钮
         this.updateUndoButton();
+        
+        // 设置液态玻璃交互效果
+        this.setupLiquidGlassInteraction();
     }
     
     createSeededRandom(seed) {
@@ -385,13 +388,16 @@ class Game2048 {
                 });
                 
                 // 创建新的合并后的方块
-                this.createTileElement(
+                const newTile = this.createTileElement(
                     merge.position.row, 
                     merge.position.col, 
                     merge.result,
                     false,
                     true
                 );
+                
+                // 触发液态爆发效果
+                this.burst(newTile);
             });
             
             // 更新分数显示
@@ -504,6 +510,8 @@ class Game2048 {
         
         this.tileContainer.appendChild(tile);
         this.tiles[tileData.id] = tile;
+        
+        return tile; // 返回创建的元素
     }
     
     getPosition(row, col) {
@@ -789,6 +797,53 @@ class Game2048 {
     hideMessage() {
         this.messageContainer.style.display = 'none';
         this.messageContainer.className = 'game-message';
+    }
+    
+    setupLiquidGlassInteraction() {
+        // 鼠标悬停增强液态效果
+        this.tileContainer.addEventListener('pointermove', (e) => {
+            const rect = this.tileContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 检查是否悬停在任何方块上
+            let hovering = false;
+            for (const tileId in this.tiles) {
+                const tile = this.tiles[tileId];
+                const tileRect = tile.getBoundingClientRect();
+                const containerRect = this.tileContainer.getBoundingClientRect();
+                
+                const tileX = tileRect.left - containerRect.left;
+                const tileY = tileRect.top - containerRect.top;
+                const tileWidth = tileRect.width;
+                const tileHeight = tileRect.height;
+                
+                if (x >= tileX && x <= tileX + tileWidth &&
+                    y >= tileY && y <= tileY + tileHeight) {
+                    hovering = true;
+                    break;
+                }
+            }
+            
+            // 更新液态效果强度
+            document.documentElement.style.setProperty('--liq-scale', hovering ? '24' : '18');
+        });
+        
+        // 鼠标离开时恢复默认值
+        this.tileContainer.addEventListener('pointerleave', () => {
+            document.documentElement.style.setProperty('--liq-scale', '18');
+        });
+    }
+    
+    // 爆发效果 - 用于合并动画
+    burst(tileElement) {
+        // 临时增加液态效果强度
+        document.documentElement.style.setProperty('--liq-scale', '35');
+        
+        // 200ms后恢复
+        setTimeout(() => {
+            document.documentElement.style.setProperty('--liq-scale', '18');
+        }, 200);
     }
 }
 

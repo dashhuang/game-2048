@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 液态玻璃SVG滤镜定义 -->
+    <svg width="0" height="0" style="position:absolute">
+        <filter id="liquid">
+            <feTurbulence id="turbulence" type="fractalNoise"
+                          baseFrequency="0.015" numOctaves="3" seed="2"/>
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="18" />
+        </filter>
+    </svg>
+    
     <div class="container">
         <div class="header">
             <h1>2048</h1>
