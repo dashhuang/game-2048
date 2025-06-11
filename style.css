@@ -523,6 +523,65 @@ h1 {
     line-height: 1; /* 确保flex生效 */
 }
 
+/* 游戏方块的内部图层样式 */
+.tile .liquidGlass-effect {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  filter: url(#glass-distortion);
+  overflow: hidden;
+  isolation: isolate;
+  display: block !important;
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.tile .liquidGlass-tint {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.tile .liquidGlass-shine {
+  position: absolute;
+  inset: 0; /* Changed back to 0 to ensure full coverage */
+  z-index: 2;
+  overflow: hidden;
+  /* Asymmetrical highlight mimicking a top-left light source */
+  box-shadow: 
+    /* Separate highlights for top and left edges for better corner rendering */
+    inset 0 1px 1px rgba(255, 255, 255, 0.6), /* Top edge highlight */
+    inset 1px 0 1px rgba(255, 255, 255, 0.6), /* Left edge highlight */
+    /* Faint highlight from bottom-right */
+    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+/* This gradient conflicts with the new asymmetrical lighting, so it's removed. */
+.tile .liquidGlass-shine::before {
+  display: none;
+}
+
+.tile .liquidGlass-text {
+  z-index: 3;
+  font-size: 55px;
+  font-weight: bold;
+  color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
 /* 移除悬停效果 */
 /*
 .tile:hover {
@@ -651,6 +710,7 @@ h1 {
     }
 }
 
+/* 游戏结束/通关画面 */
 .game-message {
     display: none;
     position: absolute;
@@ -664,6 +724,8 @@ h1 {
     z-index: 100;
     text-align: center;
     border-radius: 20px;
+    max-width: none; /* 移除最大宽度限制 */
+    max-height: none; /* 移除最大高度限制 */
 }
 
 .game-message p {
@@ -990,4 +1052,61 @@ h1 {
     100% {
         transform: scale(1) rotate(360deg);
     }
+}
+
+/* LIQUID GLASS STYLES - 为UI元素创建独立的wrapper */
+.ui-liquid-wrapper {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    transition: all 0.3s;
+}
+
+.ui-liquid-wrapper > .liquidGlass-effect,
+.ui-liquid-wrapper > .liquidGlass-tint,
+.ui-liquid-wrapper > .liquidGlass-shine,
+.ui-liquid-wrapper > .liquidGlass-content {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--ui-border-radius, 10px);
+}
+
+.ui-liquid-wrapper > .liquidGlass-effect {
+    z-index: 0;
+    backdrop-filter: blur(5px) saturate(120%);
+    -webkit-backdrop-filter: blur(5px) saturate(120%);
+    filter: url(#glass-distortion);
+}
+
+.ui-liquid-wrapper > .liquidGlass-tint {
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.08);
+    transition: background 0.3s;
+}
+
+.ui-liquid-wrapper > .liquidGlass-shine {
+    z-index: 2;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 1px 0 1px rgba(255, 255, 255, 0.6), inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
+}
+
+.ui-liquid-wrapper > .liquidGlass-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+/* 恢复游戏方块的原始样式 */
+.tile.liquidGlass-wrapper {
+    /* 保持原来的样式 */
 } 
