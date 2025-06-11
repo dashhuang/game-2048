@@ -273,7 +273,10 @@ h1 {
     width: calc((100% - 30px) / 4);
     height: calc((100% - 30px) / 4);
     transition: all 0.15s ease-in-out, border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
-    border-radius: 18px; /* 初始圆角 */
+    
+    /* 定义并使用CSS变量来统一控制圆角 */
+    --tile-border-radius: 18px;
+    border-radius: var(--tile-border-radius);
     
     /* 继承自 liquidGlass-wrapper 的样式 */
     display: flex;
@@ -291,13 +294,7 @@ h1 {
 /* 继承 liquidGlass-wrapper 的 hover 效果 */
 .tile:hover {
     transform: scale(1.05); /* 稍微放大 */
-    border-radius: 24px; /* 圆角变大 */
-}
-.tile:hover > .liquidGlass-effect,
-.tile:hover > .liquidGlass-tint,
-.tile:hover > .liquidGlass-shine,
-.tile:hover > .liquidGlass-text {
-    border-radius: 24px;
+    --tile-border-radius: 24px; /* 更新变量，所有子元素将自动应用新圆角 */
 }
 
 /* 移除所有旧的方块样式 */
@@ -535,7 +532,8 @@ h1 {
     .tile {
         width: calc((100% - 24px) / 4);
         height: calc((100% - 24px) / 4);
-        border-radius: 12px;
+        /* 在移动端使用较小的圆角 */
+        --tile-border-radius: 12px;
     }
     
     .liquidGlass-text {
