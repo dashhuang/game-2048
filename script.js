@@ -498,37 +498,46 @@ class Game2048 {
     }
     
     createTileElement(row, col, tileData, isNew = false, isMerged = false, isReappear = false) {
-        // 创建主容器
-        const tile = document.createElement('div');
-        tile.className = `tile tile-${tileData.value}`;
-        tile.id = `tile-${tileData.id}`;
+        const tileWrapper = document.createElement('div');
+        tileWrapper.className = `tile liquidGlass-wrapper tile-${tileData.value}`;
+        tileWrapper.id = `tile-${tileData.id}`;
+
         if (isNew) {
-            tile.classList.add('tile-new');
+            tileWrapper.classList.add('tile-new');
         }
         if (isMerged) {
-            tile.classList.add('tile-merged');
+            tileWrapper.classList.add('tile-merged');
         }
         if (isReappear) {
-            tile.classList.add('tile-reappear');
+            tileWrapper.classList.add('tile-reappear');
         }
-        
-        // 创建光泽层
-        const shine = document.createElement('div');
-        shine.className = 'tile-shine';
-        tile.appendChild(shine);
-        
-        // 创建文字层
-        const text = document.createElement('div');
-        text.className = 'tile-text';
-        text.textContent = tileData.value;
-        tile.appendChild(text);
+
+        // 创建与示例代码一致的内部结构
+        const effectDiv = document.createElement('div');
+        effectDiv.className = 'liquidGlass-effect';
+
+        const tintDiv = document.createElement('div');
+        tintDiv.className = 'liquidGlass-tint';
+
+        const shineDiv = document.createElement('div');
+        shineDiv.className = 'liquidGlass-shine';
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'liquidGlass-text';
+        textDiv.textContent = tileData.value;
+
+        // 将内部结构添加到包装器中
+        tileWrapper.appendChild(effectDiv);
+        tileWrapper.appendChild(tintDiv);
+        tileWrapper.appendChild(shineDiv);
+        tileWrapper.appendChild(textDiv);
         
         const { top, left } = this.getPosition(row, col);
-        tile.style.top = top;
-        tile.style.left = left;
+        tileWrapper.style.top = top;
+        tileWrapper.style.left = left;
         
-        this.tileContainer.appendChild(tile);
-        this.tiles[tileData.id] = tile;
+        this.tileContainer.appendChild(tileWrapper);
+        this.tiles[tileData.id] = tileWrapper; // 引用现在指向包装器
     }
     
     getPosition(row, col) {

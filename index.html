@@ -10,23 +10,15 @@
     <!-- SVG滤镜定义 -->
     <svg style="position: absolute; width: 0; height: 0;">
         <defs>
-            <!-- 液态玻璃效果滤镜 - 基于参考项目的实现 -->
-            <filter id="liquid-glass">
-                <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.015"
-                    numOctaves="2"
-                    seed="1"
-                    result="turbulence" />
-                
-                <feGaussianBlur in="turbulence" stdDeviation="2" result="blur" />
-                
-                <feDisplacementMap
-                    in="SourceGraphic"
-                    in2="blur"
-                    scale="5"
-                    xChannelSelector="R"
-                    yChannelSelector="G" />
+            <!-- 液态玻璃效果滤镜 - 完全遵循示例 -->
+            <filter id="glass-distortion">
+                <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence"/>
+                <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap"/>
+                <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+                    <fePointLight x="-200" y="-200" z="300"/>
+                </feSpecularLighting>
+                <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage"/>
+                <feDisplacementMap in="SourceGraphic" in2="softMap" scale="15" xChannelSelector="R" yChannelSelector="G"/>
             </filter>
             
             <!-- 合并时的爆发效果 -->

@@ -139,7 +139,7 @@ h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* 游戏容器 - 透明背景 */
+/* 游戏容器 - 液态玻璃效果 */
 .game-container {
     position: relative;
     background: transparent;
@@ -148,21 +148,40 @@ h1 {
     max-width: 500px;
     margin: 0 auto;
     padding: 10px;
+    /* 移除所有效果，只作为定位容器 */
     overflow: visible;
 }
 
-/* 移除液态玻璃背景层 */
+/* 移除旧的液态玻璃效果层 */
 .liquid-glass-effect {
     display: none;
 }
 
-/* 移除游戏容器的伪元素 */
-.game-container::before,
-.game-container::after {
-    display: none;
+/* 游戏容器的玻璃外框 */
+.game-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    pointer-events: none;
 }
 
-/* 游戏网格容器 - 透明背景 */
+/* 游戏容器的光泽效果 */
+.game-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 20px;
+    box-shadow: 
+        inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+/* 游戏网格容器 */
 .grid-container {
     position: relative;
     background: transparent;
@@ -174,14 +193,14 @@ h1 {
     grid-template-rows: repeat(4, 1fr);
     gap: 10px;
     padding: 10px;
-    z-index: 1;
+    z-index: 3;  /* 在液态效果层之上 */
 }
 
 .grid-row {
     display: contents;
 }
 
-/* 隐藏游戏格子背景 */
+/* 游戏格子背景 */
 .grid-cell {
     display: none;
 }
@@ -193,115 +212,154 @@ h1 {
     left: 10px;
     right: 10px;
     bottom: 10px;
-    z-index: 2;
+    z-index: 4;  /* 在网格之上 */
 }
 
-/* 数字方块 - 液态玻璃效果（完全按照示例） */
+/* LIQUID GLASS STYLES - FROM EXAMPLE */
+.liquidGlass-wrapper {
+  position: relative;
+  display: flex;
+  font-weight: 600;
+  overflow: hidden;
+  color: black;
+  cursor: pointer;
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.liquidGlass-effect { /* The new effect layer inside each tile */
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  filter: url(#glass-distortion);
+  overflow: hidden;
+  isolation: isolate;
+  display: block !important;
+}
+
+.liquidGlass-tint {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+}
+
+.liquidGlass-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.liquidGlass-text {
+  z-index: 3;
+  font-size: 55px;
+  font-weight: bold;
+  color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* 数字方块样式 - 严格按照示例结构 */
 .tile {
     position: absolute;
     width: calc((100% - 30px) / 4);
     height: calc((100% - 30px) / 4);
+    transition: all 0.15s ease-in-out, border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+    border-radius: 18px; /* 初始圆角 */
+    
+    /* 继承自 liquidGlass-wrapper 的样式 */
+    display: flex;
+    font-weight: 600;
     overflow: hidden;
     cursor: pointer;
     box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
-    border-radius: 16px;
+
+    /* 移除旧样式 */
+    background: transparent;
+    border: none;
+    line-height: 1; /* 确保flex生效 */
 }
 
-/* 液态玻璃效果层 */
-.tile::before {
-    content: '';
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-    backdrop-filter: blur(3px);
-    filter: url(#liquid-glass);
-    overflow: hidden;
-    isolation: isolate;
-}
-
-/* 颜色层 */
-.tile::after {
-    content: '';
-    z-index: 1;
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.25);
-}
-
-/* 创建额外的光泽层 */
-.tile-shine {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    overflow: hidden;
-    box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
-                inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
-    pointer-events: none;
-    border-radius: 16px;
-}
-
-/* 方块文字 */
-.tile-text {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 55px;
-    font-weight: 600;
-    color: #333;
-}
-
-/* 悬停效果 */
+/* 继承 liquidGlass-wrapper 的 hover 效果 */
 .tile:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05); /* 稍微放大 */
+    border-radius: 24px; /* 圆角变大 */
+}
+.tile:hover > .liquidGlass-effect,
+.tile:hover > .liquidGlass-tint,
+.tile:hover > .liquidGlass-shine,
+.tile:hover > .liquidGlass-text {
+    border-radius: 24px;
 }
 
-/* 移除之前的所有方块颜色样式，使用统一的液态玻璃效果 */
-.tile-2, .tile-4, .tile-8, .tile-16, .tile-32, .tile-64,
-.tile-128, .tile-256, .tile-512, .tile-1024, .tile-2048,
-.tile-4096, .tile-8192, .tile-16384, .tile-32768, .tile-65536 {
-    background: none;
-    color: inherit;
-    text-shadow: none;
-    box-shadow: none;
+/* 移除所有旧的方块样式 */
+.tile::before,
+.tile::after {
+    display: none;
 }
 
-/* 调整不同数字的字体大小 */
-.tile-128 .tile-text,
-.tile-256 .tile-text,
-.tile-512 .tile-text {
+/* 不同数字的颜色 - 只应用到 tint 层 */
+.tile-2 .liquidGlass-tint { background: rgba(238, 228, 218, 0.25); }
+.tile-4 .liquidGlass-tint { background: rgba(237, 224, 200, 0.25); }
+.tile-8 .liquidGlass-tint { background: rgba(242, 177, 121, 0.35); }
+.tile-16 .liquidGlass-tint { background: rgba(245, 149, 99, 0.45); }
+.tile-32 .liquidGlass-tint { background: rgba(246, 124, 95, 0.55); }
+.tile-64 .liquidGlass-tint { background: rgba(246, 94, 59, 0.65); }
+.tile-128 .liquidGlass-tint { background: rgba(237, 207, 114, 0.45); }
+.tile-256 .liquidGlass-tint { background: rgba(237, 204, 97, 0.55); }
+.tile-512 .liquidGlass-tint { background: rgba(237, 200, 80, 0.65); }
+.tile-1024 .liquidGlass-tint { background: rgba(237, 197, 63, 0.75); }
+.tile-2048 .liquidGlass-tint { background: rgba(237, 194, 46, 0.85); }
+
+/* 为高数值方块设置浅色文字 */
+.tile-8 .liquidGlass-text,
+.tile-16 .liquidGlass-text,
+.tile-32 .liquidGlass-text,
+.tile-64 .liquidGlass-text,
+.tile-128 .liquidGlass-text,
+.tile-256 .liquidGlass-text,
+.tile-512 .liquidGlass-text,
+.tile-1024 .liquidGlass-text,
+.tile-2048 .liquidGlass-text {
+    color: #f9f6f2;
+}
+
+/* 调整字体大小 */
+.tile-128 .liquidGlass-text,
+.tile-256 .liquidGlass-text,
+.tile-512 .liquidGlass-text {
     font-size: 45px;
 }
-
-.tile-1024 .tile-text,
-.tile-2048 .tile-text {
+.tile-1024 .liquidGlass-text,
+.tile-2048 .liquidGlass-text {
     font-size: 35px;
 }
 
-.tile-4096 .tile-text,
-.tile-8192 .tile-text {
-    font-size: 30px;
-}
-
-.tile-16384 .tile-text,
-.tile-32768 .tile-text,
-.tile-65536 .tile-text {
-    font-size: 25px;
+/* 移除旧的颜色定义 */
+.tile-2, .tile-4, .tile-8, .tile-16, .tile-32, .tile-64,
+.tile-128, .tile-256, .tile-512, .tile-1024, .tile-2048 {
+    background: none;
+    color: transparent; /* 文字颜色由 .liquidGlass-text 控制 */
+    text-shadow: none;
 }
 
 /* 新增方块动画 */
 .tile-new {
-    animation: appear 0.3s ease-out;
+    animation: appear 0.2s ease-in-out;
 }
 
 @keyframes appear {
     0% {
         opacity: 0;
-        transform: scale(0);
+        transform: scale(0.5);
     }
     100% {
         opacity: 1;
@@ -311,7 +369,7 @@ h1 {
 
 /* 合并方块动画 */
 .tile-merged {
-    animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: pop 0.2s ease-in-out;
 }
 
 @keyframes pop {
@@ -319,7 +377,7 @@ h1 {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.1);
+        transform: scale(1.15);
     }
     100% {
         transform: scale(1);
@@ -477,29 +535,22 @@ h1 {
     .tile {
         width: calc((100% - 24px) / 4);
         height: calc((100% - 24px) / 4);
+        border-radius: 12px;
     }
     
-    .tile-text {
+    .liquidGlass-text {
         font-size: 35px;
     }
     
-    .tile-128 .tile-text,
-    .tile-256 .tile-text,
-    .tile-512 .tile-text {
+    .tile-128 .liquidGlass-text,
+    .tile-256 .liquidGlass-text,
+    .tile-512 .liquidGlass-text {
         font-size: 30px;
     }
     
-    .tile-1024 .tile-text,
-    .tile-2048 .tile-text {
+    .tile-1024 .liquidGlass-text,
+    .tile-2048 .liquidGlass-text {
         font-size: 25px;
-    }
-    
-    .tile-4096 .tile-text,
-    .tile-8192 .tile-text,
-    .tile-16384 .tile-text,
-    .tile-32768 .tile-text,
-    .tile-65536 .tile-text {
-        font-size: 20px;
     }
     
     .game-message p {
