@@ -139,6 +139,16 @@ class Game2048 {
                     e.preventDefault();
                     this.move(direction);
                 }
+
+                // 测试快捷键
+                if (e.keyCode === 57) { // "9" key
+                    e.preventDefault();
+                    this.showMessage('你赢了!', 'game-won');
+                }
+                if (e.keyCode === 48) { // "0" key
+                    e.preventDefault();
+                    this.showMessage('无路可走!', 'game-stuck');
+                }
             };
         }
         
@@ -299,14 +309,14 @@ class Game2048 {
                 
                 // 游戏状态检查
                 if (this.checkWin()) {
-                    this.showMessage('你赢了！', 'game-won');
+                    this.showMessage('你赢了!', 'game-won');
                 } else if (this.checkGameOver()) {
                     // 只有在没有撤销次数时才真正结束游戏
                     if (this.undoCount === 0) {
                         this.showMessage('游戏结束', 'game-over');
                     } else {
                         // 如果还有撤销次数，给用户提示
-                        this.showMessage('无路可走！点击撤销继续', 'game-stuck');
+                        this.showMessage('无路可走!', 'game-stuck');
                     }
                 }
             });

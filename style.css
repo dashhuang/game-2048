@@ -435,75 +435,67 @@ h1 {
     z-index: 4;  /* 在网格之上 */
 }
 
-/* LIQUID GLASS STYLES - FROM EXAMPLE */
+/* 统一的液态玻璃容器样式 */
 .liquidGlass-wrapper {
-  position: relative;
-  display: flex;
-  font-weight: 600;
-  overflow: hidden;
-  color: black;
-  cursor: pointer;
-  /* 移除外部阴影，更贴近iOS设计 */
-  /* box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1); */
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    transition: all 0.3s;
 }
 
-.liquidGlass-effect { /* The new effect layer inside each tile */
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  filter: url(#glass-distortion);
-  overflow: hidden;
-  isolation: isolate;
-  display: block !important;
-  border-radius: var(--tile-border-radius);
-  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+/* 统一的内部图层样式 */
+.liquidGlass-wrapper > .liquidGlass-effect,
+.liquidGlass-wrapper > .liquidGlass-tint,
+.liquidGlass-wrapper > .liquidGlass-shine,
+.liquidGlass-wrapper > .liquidGlass-content {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--ui-border-radius, 10px);
 }
 
-.liquidGlass-tint {
-  z-index: 1;
-  position: absolute;
-  inset: 0;
-  border-radius: var(--tile-border-radius);
-  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+.liquidGlass-wrapper > .liquidGlass-effect {
+    z-index: 0;
+    backdrop-filter: blur(5px) saturate(120%);
+    -webkit-backdrop-filter: blur(5px) saturate(120%);
+    filter: url(#glass-distortion);
 }
 
-.liquidGlass-shine {
-  position: absolute;
-  inset: 0; /* Changed back to 0 to ensure full coverage */
-  z-index: 2;
-  overflow: hidden;
-  /* Asymmetrical highlight mimicking a top-left light source */
-  box-shadow: 
-    /* Separate highlights for top and left edges for better corner rendering */
-    inset 0 1px 1px rgba(255, 255, 255, 0.6), /* Top edge highlight */
-    inset 1px 0 1px rgba(255, 255, 255, 0.6), /* Left edge highlight */
-    /* Faint highlight from bottom-right */
-    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
-  border-radius: var(--tile-border-radius);
-  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+.liquidGlass-wrapper > .liquidGlass-tint {
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.08);
+    transition: background 0.3s;
 }
 
-/* This gradient conflicts with the new asymmetrical lighting, so it's removed. */
-.liquidGlass-shine::before {
-  display: none;
+.liquidGlass-wrapper > .liquidGlass-shine {
+    z-index: 2;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 1px 0 1px rgba(255, 255, 255, 0.6), inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
 }
 
-.liquidGlass-text {
-  z-index: 3;
-  font-size: 55px;
-  font-weight: bold;
-  color: white;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  border-radius: var(--tile-border-radius);
-  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+.liquidGlass-wrapper > .liquidGlass-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+/* 移除旧的、分散的样式 */
+.score-box, .btn-new, .btn-undo {
+    /* 样式已由 .liquidGlass-wrapper 统一处理 */
+}
+.score-box .liquidGlass-effect, .score-box .liquidGlass-tint, .score-box .liquidGlass-shine, .score-box .liquidGlass-content,
+.btn-new .liquidGlass-effect, .btn-new .liquidGlass-tint, .btn-new .liquidGlass-shine, .btn-new .liquidGlass-content,
+.btn-undo .liquidGlass-effect, .btn-undo .liquidGlass-tint, .btn-undo .liquidGlass-shine, .btn-undo .liquidGlass-content {
+    /* 不再需要单独定义 */
 }
 
 /* 数字方块样式 - 严格按照示例结构 */
@@ -684,24 +676,18 @@ h1 {
 }
 
 .game-message.game-won {
-    background: rgba(237, 194, 46, 0.3);
-    backdrop-filter: blur(30px) saturate(200%);
-    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    background: rgba(237, 194, 46, 0.1); /* 更淡的金色 */
+    backdrop-filter: blur(25px) saturate(160%);
+    -webkit-backdrop-filter: blur(25px) saturate(160%);
     color: #ffd400;
 }
 
-.game-message.game-over {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    color: rgba(255, 255, 255, 0.9);
-}
-
+.game-message.game-over,
 .game-message.game-stuck {
-    background: rgba(246, 124, 95, 0.4); /* 一个醒目的颜色 */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    color: #f9f6f2;
+    background: rgba(30, 40, 60, 0.15); /* 更淡的深色背景 */
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .game-message.game-stuck .restart-button {
