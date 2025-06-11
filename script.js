@@ -123,14 +123,21 @@ class Game2048 {
         // 避免重复绑定，先存储事件处理器
         if (!this.keydownHandler) {
             this.keydownHandler = (e) => {
-                if ([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+                const keyMap = {
+                    37: 'left',  // Left arrow
+                    65: 'left',  // A
+                    38: 'up',    // Up arrow
+                    87: 'up',    // W
+                    39: 'right', // Right arrow
+                    68: 'right', // D
+                    40: 'down',  // Down arrow
+                    83: 'down'   // S
+                };
+                
+                const direction = keyMap[e.keyCode];
+                if (direction) {
                     e.preventDefault();
-                    switch(e.keyCode) {
-                        case 37: this.move('left'); break;
-                        case 38: this.move('up'); break;
-                        case 39: this.move('right'); break;
-                        case 40: this.move('down'); break;
-                    }
+                    this.move(direction);
                 }
             };
         }
