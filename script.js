@@ -282,10 +282,10 @@ class Game2048 {
             this.animateMovements(movements, merges, () => {
                 // 动画完成后添加新方块
                 this.addNewTile();
-                this.updateDisplay();
                 
-                // 保存移动后的完整状态（包含新方块）
+                // 修复：先保存状态，再更新显示
                 this.saveState();
+                this.updateDisplay();
                 
                 // 清除动画标志
                 this.isAnimating = false;
