@@ -524,12 +524,14 @@ class Game2048 {
         // 检查是否在小屏幕上（响应式）
         const isSmallScreen = window.innerWidth <= 520;
         const gap = isSmallScreen ? 8 : 10; // 响应式间隙
-        const totalGaps = gap * 3; // 3个间隙
         
-        // 使用CSS calc来计算位置
+        // 计算每个格子的大小
+        const cellSize = `(100% - ${gap * 3}px) / 4`;
+        
+        // 计算位置：格子大小 * 索引 + 间隙 * 索引
         const position = {
-            top: `calc(${row} * ((100% - ${totalGaps}px) / 4 + ${gap}px))`,
-            left: `calc(${col} * ((100% - ${totalGaps}px) / 4 + ${gap}px))`
+            top: `calc(${cellSize} * ${row} + ${gap}px * ${row})`,
+            left: `calc(${cellSize} * ${col} + ${gap}px * ${col})`
         };
         
         return position;
