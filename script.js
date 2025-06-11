@@ -19,6 +19,7 @@ class Game2048 {
         this.undoRewardValue = 256; // 每合成256的倍数获得撤销次数
         
         this.tileContainer = document.getElementById('tile-container');
+        this.gridContainer = document.querySelector('.grid-container');
         this.scoreDisplay = document.getElementById('score');
         this.bestScoreDisplay = document.getElementById('best-score');
         this.messageContainer = document.getElementById('game-message');
@@ -68,6 +69,17 @@ class Game2048 {
         // 监听窗口大小变化
         window.addEventListener('resize', setVH);
         window.addEventListener('orientationchange', setVH);
+    }
+
+    applyDragTransform(x, y) {
+        if (this.gridContainer && this.tileContainer) {
+            this.gridContainer.style.transform = `translate(${x}px, ${y}px)`;
+            this.tileContainer.style.transform = `translate(${x}px, ${y}px)`;
+        }
+    }
+
+    resetDragTransform() {
+        this.applyDragTransform(0, 0);
     }
     
     setup() {
@@ -153,19 +165,25 @@ class Game2048 {
             touchStarted = true;
             this.startX = e.touches[0].clientX;
             this.startY = e.touches[0].clientY;
+            if (this.gridContainer && this.tileContainer) {
+                this.gridContainer.style.transition = '';
+                this.tileContainer.style.transition = '';
+            }
         }, { passive: true });
         
         document.addEventListener('touchmove', (e) => {
-            // 只在触摸开始后且有明显移动时才阻止默认行为
             if (touchStarted) {
                 const currentX = e.touches[0].clientX;
                 const currentY = e.touches[0].clientY;
-                const diffX = Math.abs(currentX - this.startX);
-                const diffY = Math.abs(currentY - this.startY);
-                
-                // 如果移动距离超过10像素，认为是游戏操作，阻止页面滚动
-                if (diffX > 10 || diffY > 10) {
+                const diffX = currentX - this.startX;
+                const diffY = currentY - this.startY;
+                if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
                     e.preventDefault();
+                }
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    this.applyDragTransform(diffX, 0);
+                } else {
+                    this.applyDragTransform(0, diffY);
                 }
             }
         }, { passive: false });
@@ -175,6 +193,11 @@ class Game2048 {
                 touchStarted = false;
                 this.endX = e.changedTouches[0].clientX;
                 this.endY = e.changedTouches[0].clientY;
+                if (this.gridContainer && this.tileContainer) {
+                    this.gridContainer.style.transition = 'transform 0.2s ease';
+                    this.tileContainer.style.transition = 'transform 0.2s ease';
+                }
+                this.resetDragTransform();
                 this.handleSwipe();
             }
         }, { passive: true });
@@ -182,18 +205,37 @@ class Game2048 {
         // 鼠标滑动支持（用于桌面端测试）- 也在整个document上监听
         let mouseDown = false;
         document.addEventListener('mousedown', (e) => {
-            // 排除按钮点击
             if (e.target.closest('button')) return;
-            
             mouseDown = true;
             this.startX = e.clientX;
             this.startY = e.clientY;
+            if (this.gridContainer && this.tileContainer) {
+                this.gridContainer.style.transition = '';
+                this.tileContainer.style.transition = '';
+            }
         });
         
+        document.addEventListener('mousemove', (e) => {
+            if (mouseDown) {
+                const diffX = e.clientX - this.startX;
+                const diffY = e.clientY - this.startY;
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    this.applyDragTransform(diffX, 0);
+                } else {
+                    this.applyDragTransform(0, diffY);
+                }
+            }
+        });
+
         document.addEventListener('mouseup', (e) => {
             if (mouseDown) {
                 this.endX = e.clientX;
                 this.endY = e.clientY;
+                if (this.gridContainer && this.tileContainer) {
+                    this.gridContainer.style.transition = 'transform 0.2s ease';
+                    this.tileContainer.style.transition = 'transform 0.2s ease';
+                }
+                this.resetDragTransform();
                 this.handleSwipe();
                 mouseDown = false;
             }

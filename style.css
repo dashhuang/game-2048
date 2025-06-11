@@ -414,6 +414,7 @@ h1 {
     gap: 10px;
     padding: 10px;
     z-index: 3;  /* 在液态效果层之上 */
+    transition: transform 0.2s ease;
 }
 
 .grid-row {
@@ -433,6 +434,7 @@ h1 {
     right: 10px;
     bottom: 10px;
     z-index: 4;  /* 在网格之上 */
+    transition: transform 0.2s ease;
 }
 
 /* LIQUID GLASS STYLES - FROM EXAMPLE */
