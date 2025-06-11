@@ -267,4 +267,14 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
   - 降低最小滑动距离从50px到30px，让滑动更容易触发
   - 鼠标拖拽也支持全屏操作（排除按钮点击）
   - 更新游戏说明文字，告知用户可以在屏幕任意位置滑动
-  - 大大提升了手机上的操作体验，不再局限于游戏区域  
+  - 大大提升了手机上的操作体验，不再局限于游戏区域
+- 2024-01 - 修复iOS全屏显示和垂直居中问题
+  - 修改html元素为position: fixed和width: 100%，确保覆盖整个屏幕
+  - 调整body使用position: fixed替代relative，确保全屏效果
+  - 使用自定义CSS变量--vh和JavaScript动态计算视口高度，解决iOS Safari的100vh问题
+  - body使用flex布局并设置align-items: center实现真正的垂直居中
+  - 移除container的height: 100%限制，让内容自然高度
+  - 优化触摸事件处理，只在明显滑动时阻止默认行为
+  - 注释掉全局的touchmove阻止，避免影响iOS的全屏显示
+  - 添加fixViewportHeight方法动态计算真实视口高度
+  - 现在游戏在iPhone上真正全屏显示，背景填满整个屏幕，游戏内容垂直居中  
