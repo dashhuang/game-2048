@@ -237,12 +237,16 @@ h1 {
   overflow: hidden;
   isolation: isolate;
   display: block !important;
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
 .liquidGlass-tint {
   z-index: 1;
   position: absolute;
   inset: 0;
+  border-radius: calc(var(--tile-border-radius) - 2px);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
 .liquidGlass-shine {
@@ -252,6 +256,8 @@ h1 {
   overflow: hidden;
   box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
     inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+  border-radius: calc(var(--tile-border-radius) - 2px);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
 .liquidGlass-text {
@@ -265,6 +271,8 @@ h1 {
   align-items: center;
   justify-content: center;
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
 /* 数字方块样式 - 严格按照示例结构 */
