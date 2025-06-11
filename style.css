@@ -6,7 +6,6 @@
 
 html {
     height: 100%;
-    height: -webkit-fill-available;
     overflow: hidden;
 }
 
@@ -20,28 +19,33 @@ html {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    /* 直接在body上设置背景 */
-    background: #000 url('asset/wallpaper/iPadOS_26_Dark.webp') center/cover no-repeat;
+    background: #000; /* Fallback background */
     color: #776e65;
     font-size: 18px;
     line-height: 1.42857143;
-    min-height: 100%;
-    min-height: -webkit-fill-available;
+    position: relative;
+    height: 100%;
     margin: 0;
     overflow: hidden;
     /* 确保内容居中 */
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 移除padding，让背景覆盖整个屏幕 */
-    padding: 0;
 }
 
 /* 背景壁纸现在直接设置在body上 */
+/* 背景壁纸 - 默认深色模式 */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url('asset/wallpaper/iPadOS_26_Dark.webp') center/cover no-repeat;
+    z-index: -1;
+}
 
 /* 浅色模式背景 */
 @media (prefers-color-scheme: light) {
-    body {
+    body::before {
         background-image: url('asset/wallpaper/iPadOS_26_Light.webp');
     }
     
@@ -804,16 +808,6 @@ h1 {
     }
 }
 
-/* iOS全屏优化 */
-@supports (-webkit-touch-callout: none) {
-    body {
-        height: 100vh;
-        height: -webkit-fill-available;
-        position: fixed;
-        width: 100%;
-    }
-}
-
 /* 触摸设备优化 */
 @media (hover: none) {
     .btn-new:hover .liquidGlass-tint,
@@ -937,4 +931,9 @@ h1 {
     100% {
         transform: scale(1) rotate(360deg);
     }
+}
+
+/* iOS全屏优化 */
+@supports (-webkit-touch-callout: none) {
+    /* 此处留空，因为现代方法不再需要特殊处理 */
 } 
