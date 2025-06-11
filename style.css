@@ -80,6 +80,8 @@ h1 {
     --ui-border-radius: 10px;
     border-radius: var(--ui-border-radius);
     overflow: hidden;
+    /* 设置固定宽度确保两个分数框大小一致 */
+    width: 120px;
     /* 移除旧样式 */
     background: transparent;
     backdrop-filter: none;
@@ -137,6 +139,8 @@ h1 {
     border-radius: var(--ui-border-radius);
     overflow: hidden;
     cursor: pointer;
+    /* 设置最小宽度确保两个按钮大小一致 */
+    min-width: 120px;
     /* 移除旧样式 */
     background: transparent;
     backdrop-filter: none;
@@ -600,8 +604,9 @@ h1 {
     }
     
     .score-box {
-        margin-left: 5px;
+        margin-left: 0;
         --ui-border-radius: 8px;
+        width: 100px;
     }
     
     .score-box .liquidGlass-content {
@@ -619,6 +624,7 @@ h1 {
     .btn-new, .btn-undo {
         margin-right: 5px;
         --ui-border-radius: 8px;
+        min-width: 100px;
     }
     
     .btn-new .liquidGlass-content,
