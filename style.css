@@ -299,11 +299,13 @@ h1 {
     line-height: 1; /* 确保flex生效 */
 }
 
-/* 继承 liquidGlass-wrapper 的 hover 效果 */
+/* 移除悬停效果 */
+/*
 .tile:hover {
-    transform: scale(1.05); /* 稍微放大 */
-    --tile-border-radius: 24px; /* 更新变量，所有子元素将自动应用新圆角 */
+    transform: scale(1.05);
+    --tile-border-radius: 24px;
 }
+*/
 
 /* 移除所有旧的方块样式 */
 .tile::before,
