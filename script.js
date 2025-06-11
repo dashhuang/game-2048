@@ -500,6 +500,7 @@ class Game2048 {
     createTileElement(row, col, tileData, isNew = false, isMerged = false, isReappear = false) {
         const tile = document.createElement('div');
         tile.className = `tile tile-${tileData.value}`;
+        tile.id = `tile-${tileData.id}`;
         if (isNew) {
             tile.classList.add('tile-new');
         }
@@ -805,42 +806,8 @@ class Game2048 {
     }
     
     startLiquidAnimation() {
-        const filter = document.querySelector('#liquid-effect feTurbulence');
-        const displacementMap = document.querySelector('#liquid-effect feDisplacementMap');
-        const burstFilter = document.querySelector('#liquid-burst feTurbulence');
-        const burstDisplacementMap = document.querySelector('#liquid-burst feDisplacementMap');
-        
-        let time = 0;
-        
-        function animate() {
-            time += 0.005;  // 减慢动画速度
-            
-            // 主液态效果 - 更自然的流动
-            const baseFreq = 0.02 + Math.sin(time) * 0.005;
-            const scale = 20 + Math.sin(time * 0.8) * 5;  // 扭曲强度变化
-            
-            if (filter) {
-                filter.setAttribute('baseFrequency', `${baseFreq} ${baseFreq * 1.2}`);
-                filter.setAttribute('seed', Math.floor(time * 10) % 100);
-            }
-            
-            if (displacementMap) {
-                displacementMap.setAttribute('scale', scale);
-            }
-            
-            // 爆发效果动画
-            if (burstFilter && burstDisplacementMap) {
-                const burstFreq = 0.015 + Math.sin(time * 2) * 0.005;
-                const burstScale = 40 + Math.sin(time * 1.5) * 10;
-                
-                burstFilter.setAttribute('baseFrequency', `${burstFreq} ${burstFreq * 0.8}`);
-                burstDisplacementMap.setAttribute('scale', burstScale);
-            }
-            
-            animationId = requestAnimationFrame(animate);
-        }
-        
-        animate();
+        // 移除液态动画，因为新的实现不需要动态修改滤镜参数
+        // 液态效果现在是静态的，只在背景层显示
     }
     
     // 液态爆发效果 - 用于合并动画

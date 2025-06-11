@@ -139,38 +139,77 @@ h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* 游戏容器 - 液态玻璃效果 */
 .game-container {
     position: relative;
-    background: rgba(20, 20, 30, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: transparent;
     border-radius: 20px;
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    padding: 20px;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 2px 4px rgba(255, 255, 255, 0.1),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    /* 移除滤镜，不在容器上应用 */
+    overflow: hidden;
 }
 
+/* 液态玻璃效果背景层 */
+.liquid-glass-effect {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: rgba(30, 40, 60, 0.2);
+    backdrop-filter: blur(15px) saturate(150%);
+    -webkit-backdrop-filter: blur(15px) saturate(150%);
+    filter: url(#liquid-glass);
+    border-radius: 20px;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* 游戏容器的玻璃外框 */
+.game-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    pointer-events: none;
+}
+
+/* 游戏容器的光泽效果 */
+.game-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 20px;
+    box-shadow: 
+        inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+/* 游戏网格容器 */
 .grid-container {
     position: relative;
-    z-index: 1;
+    background: transparent;
+    border-radius: 10px;
+    width: 100%;
+    aspect-ratio: 1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
     gap: 10px;
-    width: 100%;
-    aspect-ratio: 1;
+    padding: 10px;
+    z-index: 3;  /* 在液态效果层之上 */
 }
 
 .grid-row {
     display: contents;
 }
 
+/* 游戏格子背景 */
 .grid-cell {
     background: rgba(40, 50, 70, 0.3);
     backdrop-filter: blur(5px);
@@ -180,19 +219,20 @@ h1 {
     width: calc((100% - 30px) / 4);
     height: calc((100% - 30px) / 4);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    /* 移除滤镜 */
 }
 
+/* 方块容器 */
 .tile-container {
     position: absolute;
     top: 10px;
     left: 10px;
     right: 10px;
     bottom: 10px;
-    z-index: 2;
-    /* 隔离液态效果，避免影响其他元素 */
-    isolation: isolate;
+    z-index: 4;  /* 在网格之上 */
 }
 
+/* 数字方块样式 - 液态玻璃水滴效果 */
 .tile {
     position: absolute;
     width: calc((100% - 30px) / 4);
@@ -212,8 +252,7 @@ h1 {
     /* 玻璃材质边框 */
     border: 1px solid rgba(255, 255, 255, 0.3);
     
-    /* 液态效果滤镜 */
-    filter: url(#liquid-effect);
+    /* 移除liquid-effect滤镜，不在方块上应用扭曲 */
     
     /* 多层阴影营造立体液体效果 */
     box-shadow: 
@@ -714,18 +753,15 @@ h1 {
     }
 }
 
-/* 液化合并动画 */
+/* 合并动画 - 不再使用液化效果 */
 @keyframes liquidMerge {
     0% {
         transform: scale(1) rotate(0deg);
-        filter: url(#liquid-effect) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
     }
     50% {
         transform: scale(1.3) rotate(180deg);
-        filter: url(#liquid-burst) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5)) brightness(1.3);
     }
     100% {
         transform: scale(1) rotate(360deg);
-        filter: url(#liquid-effect) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
     }
 } 

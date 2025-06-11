@@ -10,26 +10,23 @@
     <!-- SVG滤镜定义 -->
     <svg style="position: absolute; width: 0; height: 0;">
         <defs>
-            <!-- 液态玻璃效果滤镜 -->
-            <filter id="liquid-effect" x="-50%" y="-50%" width="200%" height="200%">
-                <!-- 湍流噪声 - 增强效果 -->
-                <feTurbulence 
-                    type="fractalNoise" 
-                    baseFrequency="0.02" 
-                    numOctaves="3" 
-                    result="turbulence"
-                    seed="5" />
+            <!-- 液态玻璃效果滤镜 - 基于参考项目的实现 -->
+            <filter id="liquid-glass">
+                <feTurbulence
+                    type="fractalNoise"
+                    baseFrequency="0.015"
+                    numOctaves="2"
+                    seed="1"
+                    result="turbulence" />
                 
-                <!-- 位移映射 - 增强扭曲强度 -->
-                <feDisplacementMap 
-                    in="SourceGraphic" 
-                    in2="turbulence" 
-                    scale="20" 
-                    xChannelSelector="R" 
+                <feGaussianBlur in="turbulence" stdDeviation="2" result="blur" />
+                
+                <feDisplacementMap
+                    in="SourceGraphic"
+                    in2="blur"
+                    scale="5"
+                    xChannelSelector="R"
                     yChannelSelector="G" />
-                
-                <!-- 高斯模糊增加柔和感 -->
-                <feGaussianBlur stdDeviation="0.5" />
             </filter>
             
             <!-- 合并时的爆发效果 -->
@@ -78,6 +75,8 @@
         </div>
         
         <div class="game-container">
+            <!-- 液态玻璃效果层 -->
+            <div class="liquid-glass-effect"></div>
             <div class="grid-container">
                 <!-- 4x4的网格背景 -->
                 <div class="grid-row">
