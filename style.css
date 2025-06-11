@@ -705,7 +705,13 @@ h1 {
 }
 
 .game-message.game-stuck .restart-button {
-    display: none; /* 卡住时隐藏"再来一局"按钮 */
+    display: inline-block; /* 确保按钮可见 */
+}
+
+.message-buttons {
+    display: flex;
+    gap: 15px; /* 按钮之间的间距 */
+    margin-top: 20px;
 }
 
 .restart-button {

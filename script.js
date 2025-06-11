@@ -877,8 +877,50 @@ class Game2048 {
     }
     
     showMessage(text, className) {
-        this.messageContainer.querySelector('p').textContent = text;
+        this.messageContainer.innerHTML = ''; // 先清空内容
+        
+        const messageText = document.createElement('p');
+        messageText.textContent = text;
+        this.messageContainer.appendChild(messageText);
+
         this.messageContainer.className = 'game-message ' + className;
+        
+        // 当游戏卡住时，显示"撤销"和"再来一局"两个按钮
+        if (className === 'game-stuck') {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'message-buttons';
+            
+            const undoButton = document.createElement('button');
+            undoButton.className = 'restart-button';
+            undoButton.textContent = `撤销 (${this.undoCount})`;
+            undoButton.onclick = () => {
+                this.hideMessage();
+                this.undo();
+            };
+            
+            const restartButton = document.createElement('button');
+            restartButton.className = 'restart-button';
+            restartButton.textContent = '再来一局';
+            restartButton.onclick = () => game.restart();
+            
+            buttonContainer.appendChild(undoButton);
+            buttonContainer.appendChild(restartButton);
+            this.messageContainer.appendChild(buttonContainer);
+
+        } else if (className !== 'game-won' && className !== 'game-over') {
+            const restartButton = document.createElement('button');
+            restartButton.className = 'restart-button';
+            restartButton.textContent = '再来一局';
+            restartButton.onclick = () => game.restart();
+            this.messageContainer.appendChild(restartButton);
+        } else {
+             const restartButton = document.createElement('button');
+            restartButton.className = 'restart-button';
+            restartButton.textContent = '再来一局';
+            restartButton.onclick = () => game.restart();
+            this.messageContainer.appendChild(restartButton);
+        }
+
         this.messageContainer.style.display = 'flex';
         this.messageContainer.style.alignItems = 'center';
         this.messageContainer.style.justifyContent = 'center';
