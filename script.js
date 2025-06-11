@@ -1,3 +1,8 @@
+// 全局变量
+let touchStartX = null;
+let touchStartY = null;
+let animationId = null;
+
 class Game2048 {
     constructor() {
         this.size = 4;
@@ -62,8 +67,8 @@ class Game2048 {
         // 更新撤销按钮
         this.updateUndoButton();
         
-        // 设置液态玻璃交互效果
-        this.setupLiquidGlassInteraction();
+        // 启动液态玻璃动画
+        this.startLiquidAnimation();
     }
     
     createSeededRandom(seed) {
@@ -388,17 +393,19 @@ class Game2048 {
                 });
                 
                 // 创建新的合并后的方块
-                const newTile = this.createTileElement(
+                this.createTileElement(
                     merge.position.row, 
                     merge.position.col, 
                     merge.result,
                     false,
                     true
                 );
-                
-                // 触发液态爆发效果
-                this.burst(newTile);
             });
+            
+            // 触发液态爆发效果
+            if (merges.length > 0) {
+                this.liquidBurst();
+            }
             
             // 更新分数显示
             this.scoreDisplay.textContent = this.score;
@@ -510,8 +517,6 @@ class Game2048 {
         
         this.tileContainer.appendChild(tile);
         this.tiles[tileData.id] = tile;
-        
-        return tile; // 返回创建的元素
     }
     
     getPosition(row, col) {
@@ -799,51 +804,58 @@ class Game2048 {
         this.messageContainer.className = 'game-message';
     }
     
-    setupLiquidGlassInteraction() {
-        // 鼠标悬停增强液态效果
-        this.tileContainer.addEventListener('pointermove', (e) => {
-            const rect = this.tileContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+    startLiquidAnimation() {
+        const filter = document.querySelector('#liquid-effect feTurbulence');
+        const displacementMap = document.querySelector('#liquid-effect feDisplacementMap');
+        const burstFilter = document.querySelector('#liquid-burst feTurbulence');
+        const burstDisplacementMap = document.querySelector('#liquid-burst feDisplacementMap');
+        
+        let time = 0;
+        
+        function animate() {
+            time += 0.005;  // 减慢动画速度
             
-            // 检查是否悬停在任何方块上
-            let hovering = false;
-            for (const tileId in this.tiles) {
-                const tile = this.tiles[tileId];
-                const tileRect = tile.getBoundingClientRect();
-                const containerRect = this.tileContainer.getBoundingClientRect();
-                
-                const tileX = tileRect.left - containerRect.left;
-                const tileY = tileRect.top - containerRect.top;
-                const tileWidth = tileRect.width;
-                const tileHeight = tileRect.height;
-                
-                if (x >= tileX && x <= tileX + tileWidth &&
-                    y >= tileY && y <= tileY + tileHeight) {
-                    hovering = true;
-                    break;
-                }
+            // 主液态效果 - 更自然的流动
+            const baseFreq = 0.02 + Math.sin(time) * 0.005;
+            const scale = 20 + Math.sin(time * 0.8) * 5;  // 扭曲强度变化
+            
+            if (filter) {
+                filter.setAttribute('baseFrequency', `${baseFreq} ${baseFreq * 1.2}`);
+                filter.setAttribute('seed', Math.floor(time * 10) % 100);
             }
             
-            // 更新液态效果强度
-            document.documentElement.style.setProperty('--liq-scale', hovering ? '24' : '18');
-        });
+            if (displacementMap) {
+                displacementMap.setAttribute('scale', scale);
+            }
+            
+            // 爆发效果动画
+            if (burstFilter && burstDisplacementMap) {
+                const burstFreq = 0.015 + Math.sin(time * 2) * 0.005;
+                const burstScale = 40 + Math.sin(time * 1.5) * 10;
+                
+                burstFilter.setAttribute('baseFrequency', `${burstFreq} ${burstFreq * 0.8}`);
+                burstDisplacementMap.setAttribute('scale', burstScale);
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
         
-        // 鼠标离开时恢复默认值
-        this.tileContainer.addEventListener('pointerleave', () => {
-            document.documentElement.style.setProperty('--liq-scale', '18');
-        });
+        animate();
     }
     
-    // 爆发效果 - 用于合并动画
-    burst(tileElement) {
-        // 临时增加液态效果强度
-        document.documentElement.style.setProperty('--liq-scale', '35');
+    // 液态爆发效果 - 用于合并动画
+    liquidBurst() {
+        const displacementMap = document.querySelector('#liquid-burst feDisplacementMap');
+        if (!displacementMap) return;
         
-        // 200ms后恢复
+        // 临时增加扭曲强度
+        const originalScale = displacementMap.getAttribute('scale');
+        displacementMap.setAttribute('scale', '60');
+        
+        // 300ms后恢复
         setTimeout(() => {
-            document.documentElement.style.setProperty('--liq-scale', '18');
-        }, 200);
+            displacementMap.setAttribute('scale', originalScale);
+        }, 300);
     }
 }
 

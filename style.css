@@ -4,42 +4,52 @@
     padding: 0;
 }
 
-/* 液态玻璃效果的CSS变量 */
-:root {
-    --liq-freq: 0.015;
-    --liq-scale: 18;
+
+
+/* SVG滤镜容器 */
+.svg-filters {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
 }
 
-/* 液态玻璃动画 */
-@keyframes liquid {
-    0%   { --liq-freq: 0.012; }
-    50%  { --liq-freq: 0.022; }
-    100% { --liq-freq: 0.012; }
-}
 
-/* 支持CSS变量的浏览器才应用动态效果 */
-@supports (--css: variables) {
-    svg feTurbulence {
-        base-frequency: var(--liq-freq);
-    }
-    svg feDisplacementMap {
-        scale: var(--liq-scale);
-    }
-}
+
+
+
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    background: #faf8ef;
+    background: #000;
     color: #776e65;
     font-size: 18px;
     line-height: 1.42857143;
     position: relative;
+    min-height: 100vh;
+}
+
+/* 背景壁纸 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('asset/wallpaper/26-Tahoe-Dark-Thumb.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
 }
 
 .container {
     max-width: 500px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .header {
@@ -49,9 +59,10 @@ body {
 h1 {
     font-size: 60px;
     font-weight: bold;
-    color: #776e65;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
     display: inline-block;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .score-container {
@@ -62,13 +73,17 @@ h1 {
 
 .score-box {
     display: inline-block;
-    background: #bbada0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     padding: 10px 20px;
-    border-radius: 3px;
+    border-radius: 10px;
     color: white;
     margin-left: 10px;
     text-align: center;
     position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .score-label {
@@ -90,41 +105,55 @@ h1 {
 }
 
 .btn-new, .btn-undo {
-    background: #8f7a66;
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
     padding: 10px 20px;
-    color: #f9f6f2;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
     margin-right: 10px;
-    border: none;
     cursor: pointer;
     font-size: 16px;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-new:hover, .btn-undo:hover {
-    background: #9f8a76;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .btn-undo.disabled {
-    background: #ccc;
+    background: rgba(255, 255, 255, 0.05);
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 .btn-undo.disabled:hover {
-    background: #ccc;
+    background: rgba(255, 255, 255, 0.05);
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .game-container {
     position: relative;
-    background: #bbada0;
-    border-radius: 10px;
+    background: rgba(20, 20, 30, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    padding: 10px;
+    padding: 20px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .grid-container {
@@ -143,8 +172,14 @@ h1 {
 }
 
 .grid-cell {
-    background: rgba(238, 228, 218, 0.35);
-    border-radius: 6px;
+    background: rgba(40, 50, 70, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 8px;
+    position: absolute;
+    width: calc((100% - 30px) / 4);
+    height: calc((100% - 30px) / 4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .tile-container {
@@ -154,57 +189,222 @@ h1 {
     right: 10px;
     bottom: 10px;
     z-index: 2;
+    /* 隔离液态效果，避免影响其他元素 */
+    isolation: isolate;
 }
 
 .tile {
     position: absolute;
     width: calc((100% - 30px) / 4);
     height: calc((100% - 30px) / 4);
-    background: #eee4da;
-    border-radius: 6px;
+    font-size: 55px;
     font-weight: bold;
     text-align: center;
-    line-height: 1;
+    line-height: calc((100vw - 70px) / 4);
+    border-radius: 12px;
     transition: all 0.15s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
+    z-index: 10;
     
-    /* 液态玻璃效果 */
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    filter: url(#liquid);
-    background-color: rgba(238, 228, 218, 0.85);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    animation: liquid 8s linear infinite;
-    /* 创建圆润的液态边缘 */
-    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 70%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 70%, transparent 100%);
+    /* 液态玻璃基础效果 - 减弱模糊 */
+    backdrop-filter: blur(8px) brightness(1.1);
+    -webkit-backdrop-filter: blur(8px) brightness(1.1);
     
-    /* 性能优化 */
-    will-change: transform, filter;
+    /* 玻璃材质边框 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    /* 液态效果滤镜 */
+    filter: url(#liquid-effect);
+    
+    /* 多层阴影营造立体液体效果 */
+    box-shadow: 
+        /* 内部高光 */
+        inset 0 2px 4px rgba(255, 255, 255, 0.6),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        /* 外部阴影 */
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.3),
+        /* 液体反光 */
+        0 -1px 0 rgba(255, 255, 255, 0.4);
 }
 
-/* 不同数字的颜色 - 调整为半透明以支持液态玻璃效果 */
-.tile-2 { background-color: rgba(238, 228, 218, 0.85); color: #776e65; }
-.tile-4 { background-color: rgba(237, 224, 200, 0.85); color: #776e65; }
-.tile-8 { background-color: rgba(242, 177, 121, 0.9); color: #f9f6f2; }
-.tile-16 { background-color: rgba(245, 149, 99, 0.9); color: #f9f6f2; }
-.tile-32 { background-color: rgba(246, 124, 95, 0.9); color: #f9f6f2; }
-.tile-64 { background-color: rgba(246, 94, 59, 0.9); color: #f9f6f2; }
-.tile-128 { background-color: rgba(237, 207, 114, 0.9); color: #f9f6f2; font-size: 35px; }
-.tile-256 { background-color: rgba(237, 204, 97, 0.9); color: #f9f6f2; font-size: 35px; }
-.tile-512 { background-color: rgba(237, 200, 80, 0.9); color: #f9f6f2; font-size: 35px; }
-.tile-1024 { background-color: rgba(237, 197, 63, 0.9); color: #f9f6f2; font-size: 30px; }
-.tile-2048 { background-color: rgba(237, 194, 46, 0.95); color: #f9f6f2; font-size: 30px; }
+/* 方块悬停效果 */
+.tile:hover {
+    transform: translateZ(30px) scale(1.02);
+    box-shadow: 
+        /* 内部高光 */
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.1),
+        /* 外部阴影 - 更强烈 */
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        0 15px 30px rgba(0, 0, 0, 0.3),
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        /* 彩色反射 */
+        0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+/* 高光反射效果 */
+.tile::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    height: 40%;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.4) 0%, 
+        rgba(255, 255, 255, 0.1) 60%,
+        transparent 100%);
+    border-radius: 18px 18px 100px 100px;
+    pointer-events: none;
+}
+
+/* 底部反射光 */
+.tile::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    left: 20%;
+    right: 20%;
+    height: 30%;
+    background: radial-gradient(ellipse at center bottom, 
+        rgba(255, 255, 255, 0.3) 0%, 
+        transparent 70%);
+    filter: blur(6px);
+    pointer-events: none;
+}
+
+/* 不同数字的颜色 - 液态玻璃水滴效果 */
+.tile-2 {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%,   /* 降低不透明度 */
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    color: #f8f8f8;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tile-4 {
+    background: linear-gradient(135deg, 
+        rgba(255, 246, 230, 0.2) 0%,   /* 降低不透明度 */
+        rgba(255, 246, 230, 0.05) 50%,
+        rgba(255, 236, 200, 0.15) 100%);
+    color: #f8f8f8;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tile-8 {
+    background: linear-gradient(135deg, 
+        rgba(255, 178, 120, 0.3) 0%,   /* 降低不透明度 */
+        rgba(255, 178, 120, 0.1) 50%,
+        rgba(255, 158, 100, 0.25) 100%);
+    color: #f9f6f2;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.tile-16 {
+    background: linear-gradient(135deg, 
+        rgba(255, 150, 100, 0.35) 0%,   /* 降低不透明度 */
+        rgba(255, 150, 100, 0.15) 50%,
+        rgba(255, 130, 80, 0.3) 100%);
+    color: #f9f6f2;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.tile-32 { 
+    background: linear-gradient(135deg, 
+        rgba(246, 124, 95, 0.4) 0%, 
+        rgba(246, 124, 95, 0.15) 40%,
+        rgba(246, 124, 95, 0.02) 100%);
+    color: #ff9b7a;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-64 { 
+    background: linear-gradient(135deg, 
+        rgba(246, 94, 59, 0.45) 0%, 
+        rgba(246, 94, 59, 0.2) 40%,
+        rgba(246, 94, 59, 0.02) 100%);
+    color: #ff7a52;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-128 { 
+    background: linear-gradient(135deg, 
+        rgba(237, 207, 114, 0.4) 0%, 
+        rgba(237, 207, 114, 0.15) 40%,
+        rgba(237, 207, 114, 0.02) 100%);
+    color: #ffe366;
+    font-size: 35px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-256 { 
+    background: linear-gradient(135deg, 
+        rgba(237, 204, 97, 0.45) 0%, 
+        rgba(237, 204, 97, 0.2) 40%,
+        rgba(237, 204, 97, 0.02) 100%);
+    color: #ffdf4d;
+    font-size: 35px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-512 { 
+    background: linear-gradient(135deg, 
+        rgba(237, 200, 80, 0.5) 0%, 
+        rgba(237, 200, 80, 0.2) 40%,
+        rgba(237, 200, 80, 0.02) 100%);
+    color: #ffdb33;
+    font-size: 35px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-1024 { 
+    background: linear-gradient(135deg, 
+        rgba(237, 197, 63, 0.55) 0%, 
+        rgba(237, 197, 63, 0.25) 40%,
+        rgba(237, 197, 63, 0.02) 100%);
+    color: #ffd71a;
+    font-size: 30px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-2048 { 
+    background: linear-gradient(135deg, 
+        rgba(237, 194, 46, 0.6) 0%, 
+        rgba(237, 194, 46, 0.3) 40%,
+        rgba(237, 194, 46, 0.05) 100%);
+    color: #ffd400;
+    font-size: 30px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    /* 特殊发光效果 */
+    box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.1),
+        0 20px 40px rgba(237, 194, 46, 0.3),
+        0 10px 20px rgba(0, 0, 0, 0.3),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        0 0 40px rgba(237, 194, 46, 0.4);
+}
 
 /* 更大数字的样式 */
-.tile-4096 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 25px; }
-.tile-8192 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 25px; }
-.tile-16384 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 20px; }
-.tile-32768 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 20px; }
-.tile-65536 { background-color: rgba(60, 58, 50, 0.95); color: #f9f6f2; font-size: 20px; }
+.tile-4096, .tile-8192, .tile-16384, .tile-32768, .tile-65536 { 
+    background: linear-gradient(135deg, 
+        rgba(160, 130, 255, 0.6) 0%, 
+        rgba(160, 130, 255, 0.3) 40%,
+        rgba(160, 130, 255, 0.05) 100%);
+    color: #b8a0ff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.1),
+        0 20px 40px rgba(160, 130, 255, 0.3),
+        0 10px 20px rgba(0, 0, 0, 0.3),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        0 0 40px rgba(160, 130, 255, 0.4);
+}
+
+.tile-4096, .tile-8192 { font-size: 25px; }
+.tile-16384, .tile-32768, .tile-65536 { font-size: 20px; }
 
 /* 新增方块动画 */
 .tile-new {
@@ -222,9 +422,9 @@ h1 {
     }
 }
 
-/* 合并方块动画 - 增强液态效果 */
+/* 合并方块动画 */
 .tile-merged {
-    animation: pop 0.2s ease-in-out, liquid-burst 0.3s ease-out;
+    animation: pop 0.2s ease-in-out;
 }
 
 @keyframes pop {
@@ -232,23 +432,10 @@ h1 {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.2);
+        transform: scale(1.15);
     }
     100% {
         transform: scale(1);
-    }
-}
-
-/* 合并时的液态爆发效果 */
-@keyframes liquid-burst {
-    0% {
-        --liq-scale: 18;
-    }
-    50% {
-        --liq-scale: 32;
-    }
-    100% {
-        --liq-scale: 18;
     }
 }
 
@@ -295,10 +482,12 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     z-index: 100;
     text-align: center;
-    border-radius: 10px;
+    border-radius: 20px;
 }
 
 .game-message p {
@@ -307,37 +496,59 @@ h1 {
     height: 60px;
     line-height: 60px;
     margin-top: 200px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .game-message.game-won {
-    background: rgba(237, 194, 46, 0.9);
-    color: #f9f6f2;
+    background: rgba(237, 194, 46, 0.3);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    color: #ffd400;
 }
 
 .game-message.game-over {
-    background: rgba(238, 228, 218, 0.95);
-    color: #776e65;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .restart-button {
     display: inline-block;
-    background: #8f7a66;
-    border-radius: 3px;
-    padding: 10px 20px;
-    color: #f9f6f2;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px 30px;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 30px;
-    border: none;
     cursor: pointer;
     font-size: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.restart-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
 }
 
 .instructions {
     margin-top: 30px;
     line-height: 1.6;
-    color: #776e65;
+    color: rgba(255, 255, 255, 0.7);
     font-size: 16px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
 }
 
 /* 响应式设计 */
@@ -410,35 +621,27 @@ h1 {
 /* 不支持backdrop-filter的浏览器降级方案 */
 @supports not (backdrop-filter: blur(1px)) {
     .tile {
-        /* 移除液态玻璃效果，使用纯色背景 */
-        filter: none !important;
-        animation: none !important;
-        mask-image: none !important;
-        -webkit-mask-image: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(255, 255, 255, 0.15) !important;
     }
     
-    .tile-2 { background-color: #eee4da !important; }
-    .tile-4 { background-color: #ede0c8 !important; }
-    .tile-8 { background-color: #f2b179 !important; }
-    .tile-16 { background-color: #f59563 !important; }
-    .tile-32 { background-color: #f67c5f !important; }
-    .tile-64 { background-color: #f65e3b !important; }
-    .tile-128 { background-color: #edcf72 !important; }
-    .tile-256 { background-color: #edcc61 !important; }
-    .tile-512 { background-color: #edc850 !important; }
-    .tile-1024 { background-color: #edc53f !important; }
-    .tile-2048 { background-color: #edc22e !important; }
+    .score-box,
+    .btn-new,
+    .btn-undo,
+    .game-container,
+    .instructions {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(30, 30, 30, 0.9) !important;
+    }
 }
 
 /* 减少动画模式 */
 @media (prefers-reduced-motion: reduce) {
     .tile {
         animation-play-state: paused !important;
-        filter: none !important;
-    }
-    
-    @keyframes liquid {
-        0%, 100% { --liq-freq: 0.015; }
+        transition: none !important;
     }
 }
 
@@ -478,14 +681,18 @@ h1 {
     position: absolute;
     right: 20px;
     top: 80px;
-    background: #8f7a66;
-    color: #f9f6f2;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
     padding: 8px 16px;
-    border-radius: 3px;
+    border-radius: 10px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     animation: undo-reward 1s ease-in-out;
     z-index: 30;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes undo-reward {
@@ -504,5 +711,21 @@ h1 {
     100% {
         opacity: 0;
         transform: translateY(-20px);
+    }
+}
+
+/* 液化合并动画 */
+@keyframes liquidMerge {
+    0% {
+        transform: scale(1) rotate(0deg);
+        filter: url(#liquid-effect) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    }
+    50% {
+        transform: scale(1.3) rotate(180deg);
+        filter: url(#liquid-burst) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5)) brightness(1.3);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+        filter: url(#liquid-effect) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
     }
 } 
