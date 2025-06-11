@@ -26,16 +26,26 @@ body {
     position: relative;
     height: 100%;
     overflow: hidden;
+    /* iOS安全区域内边距 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* 确保内容居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 背景壁纸 - 默认深色模式 */
 body::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    /* 扩展到安全区域外 */
+    top: calc(0px - env(safe-area-inset-top));
+    left: calc(0px - env(safe-area-inset-left));
+    right: calc(0px - env(safe-area-inset-right));
+    bottom: calc(0px - env(safe-area-inset-bottom));
     background-image: url('asset/wallpaper/iPadOS_26_Dark.webp');
     background-size: cover;
     background-position: center;
@@ -119,13 +129,11 @@ body::before {
 
 .container {
     max-width: 500px;
-    margin: 0 auto;
     padding: 20px;
     position: relative;
     z-index: 1;
     text-align: center;
     min-width: 320px; /* 添加最小宽度，防止内容被过度挤压 */
-    height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
