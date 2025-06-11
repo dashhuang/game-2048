@@ -261,9 +261,15 @@ h1 {
     position: absolute;
     inset: 0;
     border-radius: inherit; /* 继承父元素的圆角 */
-    /* 优化后的阴影，更均匀 */
-    box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.6),
-                inset -1px -1px 1px rgba(50, 50, 50, 0.2);
+    
+    /* 使用渐变边框模拟均匀光泽 */
+    border: 1.5px solid transparent;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1)) border-box;
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
 }
 
 .liquidGlass-text {
