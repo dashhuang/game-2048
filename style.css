@@ -257,8 +257,9 @@ h1 {
   overflow: hidden;
   /* Asymmetrical highlight mimicking a top-left light source */
   box-shadow: 
-    /* Main highlight from top-left - made even thinner */
-    inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.8),
+    /* Separate highlights for top and left edges for better corner rendering */
+    inset 0 0.75px 1px rgba(255, 255, 255, 0.7), /* Top edge highlight */
+    inset 0.75px 0 1px rgba(255, 255, 255, 0.7), /* Left edge highlight */
     /* Faint highlight from bottom-right */
     inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.2);
   border-radius: calc(var(--tile-border-radius) - 2px);
