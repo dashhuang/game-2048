@@ -52,6 +52,7 @@
   - CSS Grid布局系统
   - CSS变量动态控制
   - backdrop-filter毛玻璃效果
+  - border-image-source实现渐变边框
   - mask-image液态边缘
   - 高级动画与过渡效果
 - **原生JavaScript**：ES6类语法，事件监听，DOM操作
