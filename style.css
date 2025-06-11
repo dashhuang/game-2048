@@ -19,27 +19,27 @@ html {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    background: #000; /* Fallback background */
+    background: #000;
     color: #776e65;
     font-size: 18px;
     line-height: 1.42857143;
     position: relative;
     height: 100%;
-    margin: 0;
     overflow: hidden;
-    /* 确保内容居中 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-/* 背景壁纸现在直接设置在body上 */
 /* 背景壁纸 - 默认深色模式 */
 body::before {
     content: '';
     position: fixed;
-    inset: 0;
-    background: url('asset/wallpaper/iPadOS_26_Dark.webp') center/cover no-repeat;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('asset/wallpaper/iPadOS_26_Dark.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     z-index: -1;
 }
 
@@ -119,22 +119,21 @@ body::before {
 
 .container {
     max-width: 500px;
-    /* 使用安全区域内边距，但保持原有的20px */
-    padding-top: max(20px, env(safe-area-inset-top));
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-    padding-left: max(20px, env(safe-area-inset-left));
-    padding-right: max(20px, env(safe-area-inset-right));
+    margin: 0 auto;
+    padding: 20px;
+    /* 为iPhone安全区域添加内边距 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     position: relative;
     z-index: 1;
     text-align: center;
     min-width: 320px; /* 添加最小宽度，防止内容被过度挤压 */
-    height: 100%; /* 使用100%而不是100vh */
+    height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .header {
@@ -679,11 +678,7 @@ h1 {
 /* 响应式设计 */
 @media screen and (max-width: 520px) {
     .container {
-        /* 移动端也使用安全区域内边距，但减小基础padding */
-        padding-top: max(15px, env(safe-area-inset-top));
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
-        padding-left: max(10px, env(safe-area-inset-left));
-        padding-right: max(10px, env(safe-area-inset-right));
+        padding: 15px 10px 10px 10px;
     }
     
     .header {
@@ -931,9 +926,4 @@ h1 {
     100% {
         transform: scale(1) rotate(360deg);
     }
-}
-
-/* iOS全屏优化 */
-@supports (-webkit-touch-callout: none) {
-    /* 此处留空，因为现代方法不再需要特殊处理 */
 } 
