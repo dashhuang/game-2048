@@ -269,3 +269,11 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
   - 设置状态栏样式为black-translucent实现透明效果
   - body添加flex布局确保内容正确居中
   - 现在在iPhone上可以真正全屏显示，背景壁纸覆盖状态栏和底部区域  
+- 2024-01 - 重新修复iOS全屏显示问题
+  - 移除body的safe-area padding，避免内容区域缩小
+  - 直接在body上设置背景图片，而不是使用伪元素
+  - 使用-webkit-fill-available处理iOS的高度计算问题
+  - 添加@supports查询专门针对iOS设备优化
+  - container使用safe-area padding确保内容不被遮挡
+  - 修复了游戏画面变小的问题，保持原有大小
+  - 使用position: fixed和width: 100%确保iOS上的正确布局  
