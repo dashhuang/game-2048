@@ -261,3 +261,11 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
   - 鼠标拖拽也支持全屏操作（排除按钮点击）
   - 更新游戏说明文字，告知用户可以在屏幕任意位置滑动
   - 大大提升了手机上的操作体验，不再局限于游戏区域  
+- 2024-01 - 修复iPhone全屏显示问题
+  - 添加viewport-fit=cover支持iOS安全区域
+  - 使用env()函数处理safe-area-inset
+  - 背景壁纸扩展到安全区域外，覆盖整个屏幕
+  - 添加apple-mobile-web-app-capable meta标签
+  - 设置状态栏样式为black-translucent实现透明效果
+  - body添加flex布局确保内容正确居中
+  - 现在在iPhone上可以真正全屏显示，背景壁纸覆盖状态栏和底部区域  
