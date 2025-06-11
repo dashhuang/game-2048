@@ -121,33 +121,34 @@ class Game2048 {
         document.removeEventListener('keydown', this.keydownHandler);
         document.addEventListener('keydown', this.keydownHandler);
         
-        // 触摸事件
-        const gameContainer = document.querySelector('.game-container');
-        
-        gameContainer.addEventListener('touchstart', (e) => {
+        // 触摸事件 - 在整个document上监听，实现全屏滑动
+        document.addEventListener('touchstart', (e) => {
             this.startX = e.touches[0].clientX;
             this.startY = e.touches[0].clientY;
         }, { passive: false });
         
-        gameContainer.addEventListener('touchmove', (e) => {
+        document.addEventListener('touchmove', (e) => {
             e.preventDefault();
         }, { passive: false });
         
-        gameContainer.addEventListener('touchend', (e) => {
+        document.addEventListener('touchend', (e) => {
             this.endX = e.changedTouches[0].clientX;
             this.endY = e.changedTouches[0].clientY;
             this.handleSwipe();
         }, { passive: false });
         
-        // 鼠标滑动支持（用于桌面端测试）
+        // 鼠标滑动支持（用于桌面端测试）- 也在整个document上监听
         let mouseDown = false;
-        gameContainer.addEventListener('mousedown', (e) => {
+        document.addEventListener('mousedown', (e) => {
+            // 排除按钮点击
+            if (e.target.closest('button')) return;
+            
             mouseDown = true;
             this.startX = e.clientX;
             this.startY = e.clientY;
         });
         
-        gameContainer.addEventListener('mouseup', (e) => {
+        document.addEventListener('mouseup', (e) => {
             if (mouseDown) {
                 this.endX = e.clientX;
                 this.endY = e.clientY;
@@ -160,7 +161,7 @@ class Game2048 {
     handleSwipe() {
         const diffX = this.endX - this.startX;
         const diffY = this.endY - this.startY;
-        const minSwipeDistance = 50;
+        const minSwipeDistance = 30; // 降低最小滑动距离，让滑动更容易触发
         
         if (Math.abs(diffX) > Math.abs(diffY)) {
             // 水平滑动
