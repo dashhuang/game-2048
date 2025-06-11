@@ -151,6 +151,12 @@ h1 {
     transition: all 0.3s;
 }
 
+/* 修复：按钮使用inline-flex而不是flex，以保持水平排列 */
+.btn-new.liquidGlass-wrapper, 
+.btn-undo.liquidGlass-wrapper {
+    display: inline-flex;
+}
+
 /* 按钮的液态玻璃层样式 */
 .btn-new .liquidGlass-effect,
 .btn-undo .liquidGlass-effect {
