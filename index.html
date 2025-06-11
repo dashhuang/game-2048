@@ -1,14 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN" style="height: 100%;">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <!-- iOS全屏支持 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="2048">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
     <title>2048游戏</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -48,7 +42,7 @@
     </svg>
     
     <div class="container">
-        <div class="header">
+        <header class="header">
             <h1>2048</h1>
             <div class="score-container">
                 <div class="score-box liquidGlass-wrapper">
@@ -70,67 +64,70 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="game-message" id="game-message">
-            <p></p>
-            <button class="restart-button" onclick="game.restart()">再来一局</button>
-        </div>
-        
-        <div class="controls">
-            <button class="btn-new liquidGlass-wrapper" onclick="game.restart()">
-                <span class="liquidGlass-effect"></span>
-                <span class="liquidGlass-tint"></span>
-                <span class="liquidGlass-shine"></span>
-                <span class="liquidGlass-content">新游戏</span>
-            </button>
-            <button class="btn-undo liquidGlass-wrapper" onclick="game.undo()">
-                <span class="liquidGlass-effect"></span>
-                <span class="liquidGlass-tint"></span>
-                <span class="liquidGlass-shine"></span>
-                <span class="liquidGlass-content">撤销</span>
-            </button>
-        </div>
-        
-        <div class="game-container">
-            <!-- 液态玻璃效果层 -->
-            <div class="liquid-glass-effect"></div>
-            <div class="grid-container">
-                <!-- 4x4的网格背景 -->
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
+        </header>
+
+        <main class="main-content">
+            <div class="game-message" id="game-message">
+                <p></p>
+                <button class="restart-button" onclick="game.restart()">再来一局</button>
             </div>
             
-            <div class="tile-container" id="tile-container">
-                <!-- 数字方块将动态生成在这里 -->
+            <div class="game-container">
+                <!-- 液态玻璃效果层 -->
+                <div class="liquid-glass-effect"></div>
+                <div class="grid-container">
+                    <!-- 4x4的网格背景 -->
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                </div>
+                
+                <div class="tile-container" id="tile-container">
+                    <!-- 数字方块将动态生成在这里 -->
+                </div>
             </div>
-        </div>
-        
-        <div class="instructions">
-            <p><strong>游戏说明：</strong> 使用方向键或在屏幕任意位置滑动来移动方块。相同数字的方块碰撞时会合并成一个！</p>
-        </div>
+        </main>
+
+        <footer class="footer">
+            <div class="controls">
+                <button class="btn-new liquidGlass-wrapper" onclick="game.restart()">
+                    <span class="liquidGlass-effect"></span>
+                    <span class="liquidGlass-tint"></span>
+                    <span class="liquidGlass-shine"></span>
+                    <span class="liquidGlass-content">新游戏</span>
+                </button>
+                <button class="btn-undo liquidGlass-wrapper" onclick="game.undo()">
+                    <span class="liquidGlass-effect"></span>
+                    <span class="liquidGlass-tint"></span>
+                    <span class="liquidGlass-shine"></span>
+                    <span class="liquidGlass-content">撤销</span>
+                </button>
+            </div>
+            <div class="instructions">
+                <p><strong>游戏说明：</strong> 使用方向键或在屏幕任意位置滑动来移动方块。相同数字的方块碰撞时会合并成一个！</p>
+            </div>
+        </footer>
     </div>
     
     <script src="script.js"></script>
