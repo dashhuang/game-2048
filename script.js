@@ -46,6 +46,9 @@ class Game2048 {
         
         // 修复iOS视口高度问题
         this.fixViewportHeight();
+        
+        // 检测是否在PWA模式运行
+        this.checkStandaloneMode();
     }
     
     preventPageScroll() {
@@ -68,6 +71,24 @@ class Game2048 {
         // 监听窗口大小变化
         window.addEventListener('resize', setVH);
         window.addEventListener('orientationchange', setVH);
+    }
+    
+    checkStandaloneMode() {
+        // 检测是否在PWA独立模式运行
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone || 
+                           document.referrer.includes('android-app://');
+        
+        if (isStandalone) {
+            document.body.classList.add('standalone-mode');
+        }
+        
+        // 如果是iOS Safari且不在独立模式，显示安装提示
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS && !isStandalone && !localStorage.getItem('hideInstallPrompt')) {
+            // 可以在这里添加安装PWA的提示
+            console.log('可以将此网页添加到主屏幕以获得更好的体验');
+        }
     }
     
     setup() {
