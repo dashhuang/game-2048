@@ -254,16 +254,17 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
     - controls底部间距从20px减到15px
     - 游戏说明padding和margin都相应减小
   - 现在页面完全适应手机屏幕，不会出现滚动条或底部空白
+- 2024-01 - 修复iPhone安全区域问题，实现真正全屏显示
+  - 在viewport meta标签中添加 `viewport-fit=cover`
+  - 使用CSS环境变量 `env(safe-area-inset-*)` 为body添加padding
+  - 解决了在iPhone上网页上下出现黑边的问题
+  - 现在背景可以完全填充屏幕，包括刘海和底部Home条区域
+  - 游戏内容被限制在安全区域内，不会被系统UI遮挡
+  - 使用 `height: -webkit-fill-available;` 修复iOS Safari视口高度问题
 - 2024-01 - 实现全屏滑动操作
   - 将触摸事件监听器从游戏容器移到整个document
   - 用户可以在屏幕任意位置滑动来控制游戏
   - 降低最小滑动距离从50px到30px，让滑动更容易触发
   - 鼠标拖拽也支持全屏操作（排除按钮点击）
   - 更新游戏说明文字，告知用户可以在屏幕任意位置滑动
-  - 大大提升了手机上的操作体验，不再局限于游戏区域
-- 2024-01 - 修复iPhone安全区域问题
-  - 在HTML的viewport meta标签中添加`viewport-fit=cover`
-  - 使用CSS的`env(safe-area-inset-*)`为容器添加内边距
-  - 解决了在iPhone上屏幕上下出现黑边的问题
-  - 实现了真正的沉浸式全屏体验，背景充满整个屏幕
-  - 内容区域被安全地限制在可视范围内，不会被刘海或底部栏遮挡  
+  - 大大提升了手机上的操作体验，不再局限于游戏区域  
