@@ -255,25 +255,26 @@ h1 {
   position: absolute;
   inset: 0;
   z-index: 2;
+  /* Match the parent's border-radius exactly */
+  border-radius: var(--tile-border-radius);
+  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+  /* This pseudo-element will create the gradient border */
+  overflow: hidden; 
+}
 
-  /* Use border-image to create a gradient border */
-  border: 1px solid transparent; /* Set border width, color is overridden by image */
-  border-image-slice: 1;
-  border-image-source: linear-gradient(
+/* Create the gradient border using a pseudo-element */
+.liquidGlass-shine::before {
+  content: '';
+  position: absolute;
+  inset: -2px; /* Enlarge the pseudo-element slightly */
+  z-index: -1;
+  background: linear-gradient(
     135deg, 
     rgba(255, 255, 255, 0.8) 0%, 
     rgba(255, 255, 255, 0.3) 50%,
     rgba(255, 255, 255, 0.1) 100%
   );
-
-  /* Match the parent's border-radius exactly */
-  border-radius: var(--tile-border-radius);
-  transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
-}
-
-/* This is no longer needed */
-.liquidGlass-shine::before {
-  display: none;
+  border-radius: var(--tile-border-radius); /* Use the same border-radius */
 }
 
 .liquidGlass-text {
