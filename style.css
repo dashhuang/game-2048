@@ -50,6 +50,8 @@ body::before {
     padding: 20px;
     position: relative;
     z-index: 1;
+    text-align: center;
+    min-width: 320px; /* 添加最小宽度，防止内容被过度挤压 */
 }
 
 .header {
@@ -596,35 +598,36 @@ h1 {
     }
     
     .header {
-        flex-direction: column;
+        /* 保持水平排列，不改变方向 */
+        /* flex-direction: column; -- 移除此行 */
         align-items: center;
-        gap: 15px;
+        gap: 10px; /* 减小间距 */
     }
     
     h1 {
-        font-size: 40px;
+        font-size: 35px; /* 进一步减小标题字体 */
     }
     
     .score-container {
-        gap: 10px;
+        gap: 8px; /* 减小分数框之间的间距 */
     }
     
     .score-box {
         margin-left: 0;
         --ui-border-radius: 8px;
-        width: 100px;
+        width: 85px; /* 减小分数框宽度 */
     }
     
     .score-box .liquidGlass-content {
-        padding: 8px 15px;
+        padding: 6px 10px; /* 减小内边距 */
     }
     
     .score-label {
-        font-size: 11px;
+        font-size: 10px; /* 减小标签字体 */
     }
     
     .score, .best-score {
-        font-size: 20px;
+        font-size: 18px; /* 减小分数字体 */
     }
     
     .btn-new, .btn-undo {
@@ -676,6 +679,29 @@ h1 {
     
     .instructions {
         font-size: 14px;
+    }
+}
+
+/* 针对iPhone等更小屏幕的特殊优化 */
+@media screen and (max-width: 400px) {
+    h1 {
+        font-size: 32px;
+    }
+    
+    .score-box {
+        width: 80px;
+    }
+    
+    .score-box .liquidGlass-content {
+        padding: 5px 8px;
+    }
+    
+    .score-label {
+        font-size: 9px;
+    }
+    
+    .score, .best-score {
+        font-size: 16px;
     }
 }
 
