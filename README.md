@@ -242,4 +242,15 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
     - 分数框宽度从100px减小到85px（400px以下屏幕为80px）
     - 相应调整了内边距和字体大小
   - 添加了容器最小宽度320px，防止内容被过度挤压
-  - 现在在iPhone 12 Pro（390px宽）等设备上，所有元素都能在一行内正确显示  
+  - 现在在iPhone 12 Pro（390px宽）等设备上，所有元素都能在一行内正确显示
+- 2024-01 - 修复手机页面滚动问题
+  - 设置html和body高度为100%，overflow: hidden防止滚动
+  - container使用flexbox布局，高度100%适应屏幕
+  - 游戏容器设置flex: 0 0 auto保持固定大小
+  - 游戏说明在高度小于700px的屏幕上自动隐藏
+  - JavaScript中添加preventPageScroll方法，阻止touchmove事件
+  - 调整了手机端的间距：
+    - header底部间距从30px减到20px
+    - controls底部间距从20px减到15px
+    - 游戏说明padding和margin都相应减小
+  - 现在页面完全适应手机屏幕，不会出现滚动条或底部空白  
