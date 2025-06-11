@@ -255,37 +255,19 @@ h1 {
   inset: 0;
   z-index: 2;
   overflow: hidden;
-  /* 使用多重内阴影来精确模拟iOS的光照效果 */
+  /* Asymmetrical highlight mimicking a top-left light source */
   box-shadow: 
-    /* 左上角 - 最强的白色高光 */
-    inset 2px 2px 3px 0 rgba(255, 255, 255, 0.7),
-    /* 右下角 - 较弱的白色高光 */
-    inset -1px -1px 2px 0 rgba(255, 255, 255, 0.2),
-    /* 左下角 - 轻微的暗边 */
-    inset 1px -1px 2px 0 rgba(0, 0, 0, 0.08),
-    /* 右上角 - 轻微的暗边 */
-    inset -1px 1px 2px 0 rgba(0, 0, 0, 0.08);
+    /* Main highlight from top-left */
+    inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.7),
+    /* Faint highlight from bottom-right */
+    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.2);
   border-radius: calc(var(--tile-border-radius) - 2px);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
-/* 为光泽层添加伪元素，创建更细腻的顶部高光 */
+/* This gradient conflicts with the new asymmetrical lighting, so it's removed. */
 .liquidGlass-shine::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  /* 调整渐变，让左上角更亮 */
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.3) 0%,
-    rgba(255, 255, 255, 0.1) 30%,
-    transparent 60%
-  );
-  border-radius: calc(var(--tile-border-radius) - 2px) calc(var(--tile-border-radius) - 2px) 0 0;
-  pointer-events: none;
+  display: none;
 }
 
 .liquidGlass-text {
