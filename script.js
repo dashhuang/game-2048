@@ -43,13 +43,31 @@ class Game2048 {
         
         // 防止页面滚动
         this.preventPageScroll();
+        
+        // 修复iOS视口高度问题
+        this.fixViewportHeight();
     }
     
     preventPageScroll() {
-        // 防止整个页面的触摸滚动
-        document.body.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        }, { passive: false });
+        // 暂时注释掉，可能影响iOS全屏显示
+        // document.body.addEventListener('touchmove', (e) => {
+        //     e.preventDefault();
+        // }, { passive: false });
+    }
+    
+    fixViewportHeight() {
+        // 设置正确的视口高度，修复iOS上的问题
+        const setVH = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        
+        // 初始设置
+        setVH();
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
     }
     
     setup() {
@@ -122,20 +140,37 @@ class Game2048 {
         document.addEventListener('keydown', this.keydownHandler);
         
         // 触摸事件 - 在整个document上监听，实现全屏滑动
+        let touchStarted = false;
+        
         document.addEventListener('touchstart', (e) => {
+            touchStarted = true;
             this.startX = e.touches[0].clientX;
             this.startY = e.touches[0].clientY;
-        }, { passive: false });
+        }, { passive: true });
         
         document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
+            // 只在触摸开始后且有明显移动时才阻止默认行为
+            if (touchStarted) {
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const diffX = Math.abs(currentX - this.startX);
+                const diffY = Math.abs(currentY - this.startY);
+                
+                // 如果移动距离超过10像素，认为是游戏操作，阻止页面滚动
+                if (diffX > 10 || diffY > 10) {
+                    e.preventDefault();
+                }
+            }
         }, { passive: false });
         
         document.addEventListener('touchend', (e) => {
-            this.endX = e.changedTouches[0].clientX;
-            this.endY = e.changedTouches[0].clientY;
-            this.handleSwipe();
-        }, { passive: false });
+            if (touchStarted) {
+                touchStarted = false;
+                this.endX = e.changedTouches[0].clientX;
+                this.endY = e.changedTouches[0].clientY;
+                this.handleSwipe();
+            }
+        }, { passive: true });
         
         // 鼠标滑动支持（用于桌面端测试）- 也在整个document上监听
         let mouseDown = false;
