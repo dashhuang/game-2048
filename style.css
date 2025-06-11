@@ -252,16 +252,16 @@ h1 {
 
 .liquidGlass-shine {
   position: absolute;
-  inset: 1px; /* Slightly inset to prevent edge clipping while maintaining uniform appearance */
+  inset: 0; /* Changed back to 0 to ensure full coverage */
   z-index: 2;
   overflow: hidden;
   /* Asymmetrical highlight mimicking a top-left light source */
   box-shadow: 
     /* Separate highlights for top and left edges for better corner rendering */
-    inset 0 0.75px 1px rgba(255, 255, 255, 0.7), /* Top edge highlight */
-    inset 0.75px 0 1px rgba(255, 255, 255, 0.7), /* Left edge highlight */
+    inset 0 1px 1px rgba(255, 255, 255, 0.6), /* Top edge highlight */
+    inset 1px 0 1px rgba(255, 255, 255, 0.6), /* Left edge highlight */
     /* Faint highlight from bottom-right */
-    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.2);
+    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
   border-radius: var(--tile-border-radius);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
