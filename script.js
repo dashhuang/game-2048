@@ -278,18 +278,9 @@ class Game2048 {
             // 执行移动动画
             if (this.dragDirection && this.dragDistance > this.minDragDistance) {
                 if (isQuickSwipe && this.quickSwipeEnabled) {
-                    // 快速滑动：确保砖块的transform被重置后再执行移动
-                    // 使用更快的重置动画
-                    Object.values(this.tiles).forEach(tile => {
-                        tile.classList.remove('dragging');
-                        tile.style.transition = 'transform 0.08s ease-out';
-                        tile.style.transform = '';
-                    });
-                    
-                    // 短暂延迟后执行移动，让重置动画完成
-                    setTimeout(() => {
-                        this.move(this.dragDirection);
-                    }, 80);
+                    // 快速滑动：直接执行移动，不重置transform
+                    // move方法会自动处理砖块位置的同步
+                    this.move(this.dragDirection);
                 } else {
                     // 慢速拖动：从拖动预览状态平滑过渡到实际移动
                     this.transitionFromDragToMove(this.dragDirection);
@@ -371,16 +362,8 @@ class Game2048 {
             
             if (this.dragDirection && this.dragDistance > this.minDragDistance) {
                 if (isQuickSwipe && this.quickSwipeEnabled) {
-                    // 快速滑动：与触摸处理一致
-                    Object.values(this.tiles).forEach(tile => {
-                        tile.classList.remove('dragging');
-                        tile.style.transition = 'transform 0.08s ease-out';
-                        tile.style.transform = '';
-                    });
-                    
-                    setTimeout(() => {
-                        this.move(this.dragDirection);
-                    }, 80);
+                    // 快速滑动：直接执行移动，不重置transform
+                    this.move(this.dragDirection);
                 } else {
                     // 慢速拖动：从拖动预览状态平滑过渡到实际移动
                     this.transitionFromDragToMove(this.dragDirection);
@@ -420,6 +403,11 @@ class Game2048 {
     move(direction) {
         // 如果正在动画中或正在拖动，忽略移动
         if (this.isAnimating || this.isDragging) return;
+        
+        // 移除所有砖块的dragging类，确保使用正常的移动动画
+        Object.values(this.tiles).forEach(tile => {
+            tile.classList.remove('dragging');
+        });
         
         const movements = [];
         const merges = [];
@@ -622,6 +610,14 @@ class Game2048 {
     }
     
     animateMovements(movements, merges, callback) {
+        // 先清除所有砖块的transform，确保从当前位置平滑过渡
+        Object.values(this.tiles).forEach(tile => {
+            if (tile.style.transform) {
+                // 保持原有的transition以确保平滑过渡
+                tile.style.transform = '';
+            }
+        });
+        
         // 移动所有方块
         movements.forEach(movement => {
             const tile = this.tiles[movement.tile.id];
