@@ -38,6 +38,18 @@ class Game2048 {
         // 动画状态标志
         this.isAnimating = false;
         
+        // 拖动预览相关
+        this.isDragging = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        this.currentDragX = 0;
+        this.currentDragY = 0;
+        this.dragDirection = null;
+        this.dragDistance = 0;
+        this.previewOffset = { x: 0, y: 0 };
+        this.minDragDistance = 30; // 触发移动的最小距离
+        this.dragThreshold = 10; // 开始显示拖动效果的阈值
+        
         this.setup();
         this.updateDisplay();
         
@@ -156,56 +168,149 @@ class Game2048 {
         document.removeEventListener('keydown', this.keydownHandler);
         document.addEventListener('keydown', this.keydownHandler);
         
-        // 触摸事件 - 在整个document上监听，实现全屏滑动
-        let touchStarted = false;
-        
+        // 触摸事件 - 实现拖动预览效果
         document.addEventListener('touchstart', (e) => {
-            touchStarted = true;
-            this.startX = e.touches[0].clientX;
-            this.startY = e.touches[0].clientY;
+            // 排除按钮点击
+            if (e.target.closest('button')) return;
+            
+            // 如果还在动画中，不开始新的拖动
+            if (this.isAnimating) return;
+            
+            this.isDragging = true;
+            this.dragStartX = e.touches[0].clientX;
+            this.dragStartY = e.touches[0].clientY;
+            this.currentDragX = this.dragStartX;
+            this.currentDragY = this.dragStartY;
+            this.dragDirection = null;
+            this.dragDistance = 0;
+            
+            // 确保所有砖块都在正确的位置
+            this.forceResetAllTiles();
+            
+            // 添加拖动状态类到游戏容器
+            this.tileContainer.classList.add('dragging-active');
         }, { passive: true });
         
         document.addEventListener('touchmove', (e) => {
-            // 只在触摸开始后且有明显移动时才阻止默认行为
-            if (touchStarted) {
-                const currentX = e.touches[0].clientX;
-                const currentY = e.touches[0].clientY;
-                const diffX = Math.abs(currentX - this.startX);
-                const diffY = Math.abs(currentY - this.startY);
+            if (!this.isDragging || this.isAnimating) return;
+            
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            const diffX = currentX - this.dragStartX;
+            const diffY = currentY - this.dragStartY;
+            
+            this.currentDragX = currentX;
+            this.currentDragY = currentY;
+            
+            // 计算拖动方向和距离
+            const absDiffX = Math.abs(diffX);
+            const absDiffY = Math.abs(diffY);
+            
+            // 只有超过阈值才开始显示拖动效果
+            if (absDiffX > this.dragThreshold || absDiffY > this.dragThreshold) {
+                e.preventDefault(); // 防止页面滚动
                 
-                // 如果移动距离超过10像素，认为是游戏操作，阻止页面滚动
-                if (diffX > 10 || diffY > 10) {
-                    e.preventDefault();
+                // 确定主要拖动方向
+                if (absDiffX > absDiffY) {
+                    this.dragDirection = diffX > 0 ? 'right' : 'left';
+                    this.dragDistance = absDiffX;
+                } else {
+                    this.dragDirection = diffY > 0 ? 'down' : 'up';
+                    this.dragDistance = absDiffY;
                 }
+                
+                // 更新预览效果
+                this.updateDragPreview(diffX, diffY);
             }
         }, { passive: false });
         
         document.addEventListener('touchend', (e) => {
-            if (touchStarted) {
-                touchStarted = false;
-                this.endX = e.changedTouches[0].clientX;
-                this.endY = e.changedTouches[0].clientY;
-                this.handleSwipe();
+            if (!this.isDragging) return;
+            
+            this.isDragging = false;
+            
+            // 移除拖动状态类
+            this.tileContainer.classList.remove('dragging-active');
+            
+            // 执行移动动画
+            if (this.dragDirection && this.dragDistance > this.minDragDistance) {
+                // 从拖动预览状态平滑过渡到实际移动
+                this.transitionFromDragToMove(this.dragDirection);
+            } else {
+                // 如果没有达到移动阈值，恢复原位
+                this.resetTileTransforms();
             }
         }, { passive: true });
         
-        // 鼠标滑动支持（用于桌面端测试）- 也在整个document上监听
+        // 处理触摸取消事件
+        document.addEventListener('touchcancel', (e) => {
+            if (this.isDragging) {
+                this.isDragging = false;
+                this.tileContainer.classList.remove('dragging-active');
+                this.resetTileTransforms();
+            }
+        }, { passive: true });
+        
+        // 鼠标事件支持（桌面端）
         let mouseDown = false;
+        
         document.addEventListener('mousedown', (e) => {
-            // 排除按钮点击
             if (e.target.closest('button')) return;
             
+            // 如果还在动画中，不开始新的拖动
+            if (this.isAnimating) return;
+            
             mouseDown = true;
-            this.startX = e.clientX;
-            this.startY = e.clientY;
+            this.isDragging = true;
+            this.dragStartX = e.clientX;
+            this.dragStartY = e.clientY;
+            this.currentDragX = this.dragStartX;
+            this.currentDragY = this.dragStartY;
+            this.dragDirection = null;
+            this.dragDistance = 0;
+            
+            // 确保所有砖块都在正确的位置
+            this.forceResetAllTiles();
+            this.tileContainer.classList.add('dragging-active');
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!mouseDown || !this.isDragging || this.isAnimating) return;
+            
+            const diffX = e.clientX - this.dragStartX;
+            const diffY = e.clientY - this.dragStartY;
+            
+            this.currentDragX = e.clientX;
+            this.currentDragY = e.clientY;
+            
+            const absDiffX = Math.abs(diffX);
+            const absDiffY = Math.abs(diffY);
+            
+            if (absDiffX > this.dragThreshold || absDiffY > this.dragThreshold) {
+                if (absDiffX > absDiffY) {
+                    this.dragDirection = diffX > 0 ? 'right' : 'left';
+                    this.dragDistance = absDiffX;
+                } else {
+                    this.dragDirection = diffY > 0 ? 'down' : 'up';
+                    this.dragDistance = absDiffY;
+                }
+                
+                this.updateDragPreview(diffX, diffY);
+            }
         });
         
         document.addEventListener('mouseup', (e) => {
-            if (mouseDown) {
-                this.endX = e.clientX;
-                this.endY = e.clientY;
-                this.handleSwipe();
-                mouseDown = false;
+            if (!mouseDown) return;
+            
+            mouseDown = false;
+            this.isDragging = false;
+            this.tileContainer.classList.remove('dragging-active');
+            
+            if (this.dragDirection && this.dragDistance > this.minDragDistance) {
+                // 从拖动预览状态平滑过渡到实际移动
+                this.transitionFromDragToMove(this.dragDirection);
+            } else {
+                this.resetTileTransforms();
             }
         });
     }
@@ -237,8 +342,8 @@ class Game2048 {
     }
     
     move(direction) {
-        // 如果正在动画中，忽略移动
-        if (this.isAnimating) return;
+        // 如果正在动画中或正在拖动，忽略移动
+        if (this.isAnimating || this.isDragging) return;
         
         const movements = [];
         const merges = [];
@@ -960,6 +1065,540 @@ class Game2048 {
         setTimeout(() => {
             displacementMap.setAttribute('scale', originalScale);
         }, 300);
+    }
+    
+    // 更新拖动预览效果
+    updateDragPreview(offsetX, offsetY) {
+        // 计算单个格子的大小
+        const cellSize = this.tileContainer.offsetWidth / 4;
+        const gap = 10; // 格子间距
+        const unitDistance = cellSize + gap;
+        
+        // 计算预览偏移量，使用缓动系数让动画更流畅
+        const dampingFactor = 0.5; // 增加缓动系数，让跟随更灵敏
+        const maxOffset = unitDistance * 3.5; // 最大可以移动3.5个格子的距离
+        
+        // 根据拖动方向限制偏移
+        let basePreviewX = 0;
+        let basePreviewY = 0;
+        
+        if (this.dragDirection === 'left' || this.dragDirection === 'right') {
+            basePreviewX = Math.max(-maxOffset, Math.min(maxOffset, offsetX * dampingFactor));
+            basePreviewY = 0;
+        } else if (this.dragDirection === 'up' || this.dragDirection === 'down') {
+            basePreviewX = 0;
+            basePreviewY = Math.max(-maxOffset, Math.min(maxOffset, offsetY * dampingFactor));
+        }
+        
+        // 应用transform到所有可移动的砖块
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const tile = this.grid[row][col];
+                if (tile && this.tiles[tile.id]) {
+                    const element = this.tiles[tile.id];
+                    
+                    // 检查这个砖块在当前方向上是否可以移动
+                    if (this.canTileMove(row, col, this.dragDirection)) {
+                        // 添加dragging类
+                        element.classList.add('dragging');
+                        
+                        // 使用requestAnimationFrame确保流畅
+                        requestAnimationFrame(() => {
+                            // 计算渐进的偏移量
+                            const progress = Math.min(this.dragDistance / this.minDragDistance, 1);
+                            const easedProgress = this.easeOutCubic(progress);
+                            
+                            // 计算每个砖块可以移动的最大距离
+                            let maxMoveDistance = 0;
+                            let positionFactor = 1;
+                            
+                            if (this.dragDirection === 'left') {
+                                maxMoveDistance = col * unitDistance;
+                                positionFactor = 1; // 所有砖块都尽可能移动到最左
+                            } else if (this.dragDirection === 'right') {
+                                maxMoveDistance = (this.size - 1 - col) * unitDistance;
+                                positionFactor = 1; // 所有砖块都尽可能移动到最右
+                            } else if (this.dragDirection === 'up') {
+                                maxMoveDistance = row * unitDistance;
+                                positionFactor = 1; // 所有砖块都尽可能移动到最上
+                            } else if (this.dragDirection === 'down') {
+                                maxMoveDistance = (this.size - 1 - row) * unitDistance;
+                                positionFactor = 1; // 所有砖块都尽可能移动到最下
+                            }
+                            
+                            // 计算实际偏移量，但不超过砖块可以移动的最大距离
+                            const targetOffset = this.dragDirection === 'left' || this.dragDirection === 'right' 
+                                ? basePreviewX : basePreviewY;
+                            const actualOffset = Math.sign(targetOffset) * 
+                                Math.min(Math.abs(targetOffset * easedProgress), maxMoveDistance * 0.9);
+                            
+                            const actualX = this.dragDirection === 'left' || this.dragDirection === 'right' 
+                                ? actualOffset : 0;
+                            const actualY = this.dragDirection === 'up' || this.dragDirection === 'down' 
+                                ? actualOffset : 0;
+                            
+                            // 添加轻微的缩放和倾斜效果
+                            const scale = 1 + (progress * 0.02);
+                            const rotate = this.dragDirection === 'left' ? -1 : 
+                                         this.dragDirection === 'right' ? 1 : 
+                                         this.dragDirection === 'up' ? -0.5 : 0.5;
+                            const rotateAngle = rotate * progress * 2;
+                            
+                            element.style.transform = `translate(${actualX}px, ${actualY}px) scale(${scale}) rotate(${rotateAngle}deg)`;
+                        });
+                    } else {
+                        element.classList.remove('dragging');
+                        // 边缘的砖块保持原位
+                        element.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+                    }
+                }
+            }
+        }
+    }
+    
+    // 缓动函数
+    easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+    
+    // 重置所有砖块的transform
+    resetTileTransforms() {
+        Object.values(this.tiles).forEach(tile => {
+            tile.classList.remove('dragging');
+            tile.classList.remove('moving');
+            tile.style.transition = 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            tile.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+        });
+    }
+    
+    // 强制重置所有砖块到正确位置（更彻底的重置）
+    forceResetAllTiles() {
+        // 遍历网格，确保每个砖块都在正确的位置
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const gridTile = this.grid[row][col];
+                if (gridTile && this.tiles[gridTile.id]) {
+                    const tile = this.tiles[gridTile.id];
+                    const { top, left } = this.getPosition(row, col);
+                    
+                    // 移除所有类
+                    tile.classList.remove('dragging', 'moving');
+                    
+                    // 重置样式
+                    tile.style.transition = 'none';
+                    tile.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+                    tile.style.top = top;
+                    tile.style.left = left;
+                    
+                    // 强制重绘
+                    void tile.offsetHeight;
+                    
+                    // 恢复transition
+                    tile.style.transition = '';
+                }
+            }
+        }
+        
+        // 移除任何不在网格中的孤立砖块
+        Object.keys(this.tiles).forEach(id => {
+            let found = false;
+            for (let row = 0; row < this.size && !found; row++) {
+                for (let col = 0; col < this.size && !found; col++) {
+                    if (this.grid[row][col] && this.grid[row][col].id === parseInt(id)) {
+                        found = true;
+                    }
+                }
+            }
+            if (!found && this.tiles[id]) {
+                this.tiles[id].remove();
+                delete this.tiles[id];
+            }
+        });
+    }
+    
+    // 动画滑动到目标位置
+    animateTilesToTarget(direction, callback) {
+        // 立即设置动画标志，防止重复触发
+        this.isAnimating = true;
+        
+        const movements = [];
+        const merges = [];
+        
+        // 预计算所有砖块的移动路径
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const tile = this.grid[row][col];
+                if (tile && this.tiles[tile.id] && this.canTileMove(row, col, direction)) {
+                    const element = this.tiles[tile.id];
+                    const movement = this.calculateMovement(row, col, direction);
+                    
+                    if (movement) {
+                        movements.push({
+                            element: element,
+                            from: { row, col },
+                            to: movement.to,
+                            distance: movement.distance,
+                            willMerge: movement.willMerge
+                        });
+                    }
+                }
+            }
+        }
+        
+        // 执行流畅的移动动画
+        const cellSize = this.tileContainer.offsetWidth / 4;
+        const gap = 10;
+        const unitDistance = cellSize + gap;
+        
+        movements.forEach(move => {
+            const element = move.element;
+            const distance = move.distance * unitDistance;
+            
+            let translateX = 0;
+            let translateY = 0;
+            
+            switch (direction) {
+                case 'left':
+                    translateX = -distance;
+                    break;
+                case 'right':
+                    translateX = distance;
+                    break;
+                case 'up':
+                    translateY = -distance;
+                    break;
+                case 'down':
+                    translateY = distance;
+                    break;
+            }
+            
+            // 移除dragging类，使用快速过渡
+            element.classList.remove('dragging');
+            element.style.transition = 'transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+            
+            // 如果会合并，添加轻微的缩放效果
+            if (move.willMerge) {
+                element.style.transform += ' scale(0.95)';
+            }
+        });
+        
+        // 在动画完成后执行回调
+        setTimeout(() => {
+            // 重置所有transform
+            this.resetTileTransforms();
+            
+            // 清除动画标志
+            this.isAnimating = false;
+            
+            // 执行真正的移动逻辑
+            if (callback) {
+                callback();
+            }
+        }, 120);
+    }
+    
+    // 计算砖块的移动信息
+    calculateMovement(row, col, direction) {
+        const tile = this.grid[row][col];
+        if (!tile) return null;
+        
+        let targetRow = row;
+        let targetCol = col;
+        let distance = 0;
+        let willMerge = false;
+        
+        // 根据方向计算目标位置
+        if (direction === 'left') {
+            for (let c = col - 1; c >= 0; c--) {
+                if (this.grid[row][c] === null) {
+                    targetCol = c;
+                    distance++;
+                } else if (this.grid[row][c].value === tile.value && !this.grid[row][c].merged) {
+                    targetCol = c;
+                    distance++;
+                    willMerge = true;
+                    break;
+                } else {
+                    break;
+                }
+            }
+        } else if (direction === 'right') {
+            for (let c = col + 1; c < this.size; c++) {
+                if (this.grid[row][c] === null) {
+                    targetCol = c;
+                    distance++;
+                } else if (this.grid[row][c].value === tile.value && !this.grid[row][c].merged) {
+                    targetCol = c;
+                    distance++;
+                    willMerge = true;
+                    break;
+                } else {
+                    break;
+                }
+            }
+        } else if (direction === 'up') {
+            for (let r = row - 1; r >= 0; r--) {
+                if (this.grid[r][col] === null) {
+                    targetRow = r;
+                    distance++;
+                } else if (this.grid[r][col].value === tile.value && !this.grid[r][col].merged) {
+                    targetRow = r;
+                    distance++;
+                    willMerge = true;
+                    break;
+                } else {
+                    break;
+                }
+            }
+        } else if (direction === 'down') {
+            for (let r = row + 1; r < this.size; r++) {
+                if (this.grid[r][col] === null) {
+                    targetRow = r;
+                    distance++;
+                } else if (this.grid[r][col].value === tile.value && !this.grid[r][col].merged) {
+                    targetRow = r;
+                    distance++;
+                    willMerge = true;
+                    break;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        if (distance > 0) {
+            return {
+                to: { row: targetRow, col: targetCol },
+                distance: distance,
+                willMerge: willMerge
+            };
+        }
+        
+        return null;
+    }
+    
+    // 检查砖块在指定方向上是否可以移动
+    canTileMove(row, col, direction) {
+        const tile = this.grid[row][col];
+        if (!tile) return false;
+        
+        // 更简单的逻辑：只要不在移动方向的边缘，就认为可以移动
+        // 这样所有理论上可以移动的砖块都会参与拖动预览
+        switch (direction) {
+            case 'left':
+                return col > 0;
+            case 'right':
+                return col < this.size - 1;
+            case 'up':
+                return row > 0;
+            case 'down':
+                return row < this.size - 1;
+            default:
+                return false;
+        }
+    }
+    
+    // 从拖动预览状态过渡到实际移动
+    transitionFromDragToMove(direction) {
+        // 设置动画标志
+        this.isAnimating = true;
+        
+        // 先确保所有砖块都没有dragging类
+        Object.values(this.tiles).forEach(tile => {
+            tile.classList.remove('dragging');
+        });
+        
+        // 保存当前所有砖块的transform状态
+        const currentTransforms = {};
+        Object.keys(this.tiles).forEach(id => {
+            const element = this.tiles[id];
+            const transform = window.getComputedStyle(element).transform;
+            currentTransforms[id] = transform;
+        });
+        
+        // 立即执行游戏逻辑，但暂时不更新显示
+        const movements = [];
+        const merges = [];
+        let moved = false;
+        
+        // 创建新的网格来存储结果
+        const newGrid = [];
+        for (let i = 0; i < this.size; i++) {
+            newGrid[i] = [];
+            for (let j = 0; j < this.size; j++) {
+                newGrid[i][j] = null;
+            }
+        }
+        
+        // 根据方向处理移动逻辑（复用原有逻辑）
+        if (direction === 'left') {
+            for (let row = 0; row < this.size; row++) {
+                const result = this.processLine(this.getRow(row), row, 0, 0, 1);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setRow(newGrid, row, result.line);
+            }
+        } else if (direction === 'right') {
+            for (let row = 0; row < this.size; row++) {
+                const result = this.processLine(this.getRow(row).reverse(), row, 3, 0, -1);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setRow(newGrid, row, result.line.reverse());
+            }
+        } else if (direction === 'up') {
+            for (let col = 0; col < this.size; col++) {
+                const result = this.processLine(this.getColumn(col), 0, col, 1, 0);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setColumn(newGrid, col, result.line);
+            }
+        } else if (direction === 'down') {
+            for (let col = 0; col < this.size; col++) {
+                const result = this.processLine(this.getColumn(col).reverse(), 3, col, -1, 0);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setColumn(newGrid, col, result.line.reverse());
+            }
+        }
+        
+        if (moved) {
+            // 更新网格
+            this.grid = newGrid;
+            
+            // 从当前transform状态平滑过渡到最终位置
+            this.animateFromCurrentPosition(movements, merges, () => {
+                // 动画完成后添加新方块
+                this.addNewTile();
+                this.saveState();
+                this.updateDisplay();
+                this.isAnimating = false;
+                
+                // 游戏状态检查
+                if (this.checkWin()) {
+                    this.showMessage('你赢了!', 'game-won');
+                } else if (this.checkGameOver()) {
+                    if (this.undoCount === 0) {
+                        this.showMessage('游戏结束', 'game-over');
+                    } else {
+                        this.showMessage('无路可走!', 'game-stuck');
+                    }
+                }
+            });
+        } else {
+            // 如果没有移动，确保重置所有砖块的transform
+            this.resetTileTransforms();
+            // 短暂延迟后清除动画标志，确保重置动画完成
+            setTimeout(() => {
+                this.isAnimating = false;
+            }, 200);
+        }
+    }
+    
+    // 从当前位置动画到最终位置
+    animateFromCurrentPosition(movements, merges, callback) {
+        // 先移除所有砖块的dragging类，添加moving类
+        Object.values(this.tiles).forEach(tile => {
+            tile.classList.remove('dragging');
+            tile.classList.add('moving');
+        });
+        
+        // 计算每个砖块需要移动的距离并应用transform
+        const cellSize = this.tileContainer.offsetWidth / 4;
+        const gap = 10;
+        const unitDistance = cellSize + gap;
+        
+        // 记录所有需要移动的砖块ID
+        const movingTileIds = new Set();
+        
+        movements.forEach(movement => {
+            const tile = this.tiles[movement.tile.id];
+            if (tile) {
+                movingTileIds.add(movement.tile.id);
+                // 计算从原始位置到目标位置的偏移
+                const deltaRow = movement.to.row - movement.from.row;
+                const deltaCol = movement.to.col - movement.from.col;
+                const targetX = deltaCol * unitDistance;
+                const targetY = deltaRow * unitDistance;
+                
+                // 直接设置最终的transform
+                tile.style.transform = `translate(${targetX}px, ${targetY}px)`;
+            }
+        });
+        
+        // 重置所有未移动的砖块的transform
+        Object.entries(this.tiles).forEach(([id, tile]) => {
+            if (!movingTileIds.has(id)) {
+                tile.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+                tile.classList.remove('moving');
+            }
+        });
+        
+        // 150ms后处理合并和位置更新
+        setTimeout(() => {
+            // 更新所有移动砖块的实际位置
+            movements.forEach(movement => {
+                const tile = this.tiles[movement.tile.id];
+                if (tile) {
+                    const { top, left } = this.getPosition(movement.to.row, movement.to.col);
+                    // 移除transition临时
+                    tile.style.transition = 'none';
+                    // 重置transform并设置新位置
+                    tile.style.transform = 'translate(0, 0) scale(1) rotate(0deg)';
+                    tile.style.top = top;
+                    tile.style.left = left;
+                    // 强制重绘
+                    void tile.offsetHeight;
+                    // 恢复transition并移除moving类
+                    tile.style.transition = '';
+                    tile.classList.remove('moving');
+                }
+            });
+            
+            // 处理合并
+            merges.forEach(merge => {
+                // 移除被合并的方块
+                merge.tiles.forEach(tile => {
+                    if (this.tiles[tile.id]) {
+                        this.tiles[tile.id].remove();
+                        delete this.tiles[tile.id];
+                    }
+                });
+                
+                // 创建新的合并后的方块
+                this.createTileElement(
+                    merge.position.row, 
+                    merge.position.col, 
+                    merge.result,
+                    false,
+                    true
+                );
+            });
+            
+            // 触发液态爆发效果
+            if (merges.length > 0) {
+                this.liquidBurst();
+            }
+            
+            // 更新分数显示
+            this.scoreDisplay.textContent = this.score;
+            if (this.score > this.bestScore) {
+                this.bestScore = this.score;
+                this.bestScoreDisplay.textContent = this.bestScore;
+                localStorage.setItem('bestScore', this.bestScore);
+            }
+            
+            // 确保所有砖块的transform都被重置
+            setTimeout(() => {
+                // 强制重置所有砖块到正确位置
+                this.forceResetAllTiles();
+                callback();
+            }, 50);
+        }, 150);
     }
 }
 
