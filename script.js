@@ -48,7 +48,7 @@ class Game2048 {
         this.dragDistance = 0;
         this.previewOffset = { x: 0, y: 0 };
         this.minDragDistance = 30; // 触发移动的最小距离
-        this.dragThreshold = 10; // 开始显示拖动效果的阈值
+        this.dragThreshold = 3; // 开始显示拖动效果的阈值，降低以提高响应速度
         
         // 快速滑动检测
         this.dragStartTime = 0;
@@ -1187,7 +1187,7 @@ class Game2048 {
         const unitDistance = cellSize + gap;
         
         // 计算预览偏移量，使用缓动系数让动画更流畅
-        const dampingFactor = 0.5; // 增加缓动系数，让跟随更灵敏
+        const dampingFactor = 0.7; // 提高缓动系数，让跟随更灵敏
         const maxOffset = unitDistance * 3.5; // 最大可以移动3.5个格子的距离
         
         // 根据拖动方向限制偏移
@@ -1220,8 +1220,12 @@ class Game2048 {
                         }
                         
                         // 计算渐进的偏移量
-                        const progress = Math.min(this.dragDistance / this.minDragDistance, 1);
-                        const easedProgress = this.easeOutCubic(progress);
+                        // 使用更线性的进度计算，避免初始阶段过度缩减
+                        const linearProgress = Math.min(this.dragDistance / this.minDragDistance, 1);
+                        // 在初始阶段使用更线性的响应，后期才加入缓动
+                        const progress = linearProgress < 0.5 
+                            ? linearProgress * 1.5  // 初始阶段放大响应
+                            : this.easeOutCubic(linearProgress);
                         
                         // 计算每个砖块可以移动的最大距离
                         let maxMoveDistance = 0;
@@ -1239,8 +1243,9 @@ class Game2048 {
                         // 计算实际偏移量，但不超过砖块可以移动的最大距离
                         const targetOffset = this.dragDirection === 'left' || this.dragDirection === 'right' 
                             ? basePreviewX : basePreviewY;
+                        // 直接使用progress而不是easedProgress，因为已经在上面处理了
                         const actualOffset = Math.sign(targetOffset) * 
-                            Math.min(Math.abs(targetOffset * easedProgress), maxMoveDistance * 0.9);
+                            Math.min(Math.abs(targetOffset * progress), maxMoveDistance * 0.9);
                         
                         const actualX = this.dragDirection === 'left' || this.dragDirection === 'right' 
                             ? actualOffset : 0;
@@ -1248,11 +1253,13 @@ class Game2048 {
                             ? actualOffset : 0;
                         
                         // 添加轻微的缩放和倾斜效果
-                        const scale = 1 + (progress * 0.02);
+                        // 只在拖动距离较大时才添加缩放和旋转，避免初始阶段的突变
+                        const visualProgress = Math.max(0, (linearProgress - 0.2) / 0.8);
+                        const scale = 1 + (visualProgress * 0.02);
                         const rotate = this.dragDirection === 'left' ? -1 : 
                                      this.dragDirection === 'right' ? 1 : 
                                      this.dragDirection === 'up' ? -0.5 : 0.5;
-                        const rotateAngle = rotate * progress * 2;
+                        const rotateAngle = rotate * visualProgress * 2;
                         
                         // 直接设置transform，不使用requestAnimationFrame
                         element.style.transform = `translate(${actualX}px, ${actualY}px) scale(${scale}) rotate(${rotateAngle}deg)`;
