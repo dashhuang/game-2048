@@ -52,10 +52,10 @@ class Game2048 {
         
         // 快速滑动检测
         this.dragStartTime = 0;
-        this.quickSwipeThreshold = 200; // 200ms内完成的滑动视为快速滑动
+        this.quickSwipeThreshold = 300; // 增加到300ms，让更多滑动被识别为快速滑动
         this.quickSwipeEnabled = true;
         this.lastTouchMoveTime = 0;
-        this.touchMoveThrottle = 16; // 约60fps的节流
+        this.touchMoveThrottle = 32; // 约30fps的节流，减少性能开销
         
         // 拖动预览开关（可以在低端设备上禁用）
         this.dragPreviewEnabled = true;
@@ -201,9 +201,14 @@ class Game2048 {
             this.dragDistance = 0;
             this.dragStartTime = Date.now(); // 记录开始时间
             
-            // 快速滑动时不需要重置所有砖块
-            if (!this.quickSwipeEnabled) {
-                // 确保所有砖块都在正确的位置
+            // 只在必要时重置砖块状态
+            // 检查是否有砖块还有残留的transform
+            const needsReset = Object.values(this.tiles).some(tile => {
+                const transform = tile.style.transform;
+                return transform && transform !== '' && transform !== 'translate(0, 0) scale(1) rotate(0deg)';
+            });
+            
+            if (needsReset) {
                 this.forceResetAllTiles();
             }
             
@@ -273,9 +278,18 @@ class Game2048 {
             // 执行移动动画
             if (this.dragDirection && this.dragDistance > this.minDragDistance) {
                 if (isQuickSwipe && this.quickSwipeEnabled) {
-                    // 快速滑动：直接执行移动，跳过过渡动画
-                    this.resetTileTransforms();
-                    this.move(this.dragDirection);
+                    // 快速滑动：确保砖块的transform被重置后再执行移动
+                    // 使用更快的重置动画
+                    Object.values(this.tiles).forEach(tile => {
+                        tile.classList.remove('dragging');
+                        tile.style.transition = 'transform 0.08s ease-out';
+                        tile.style.transform = '';
+                    });
+                    
+                    // 短暂延迟后执行移动，让重置动画完成
+                    setTimeout(() => {
+                        this.move(this.dragDirection);
+                    }, 80);
                 } else {
                     // 慢速拖动：从拖动预览状态平滑过渡到实际移动
                     this.transitionFromDragToMove(this.dragDirection);
@@ -312,6 +326,7 @@ class Game2048 {
             this.currentDragY = this.dragStartY;
             this.dragDirection = null;
             this.dragDistance = 0;
+            this.dragStartTime = Date.now(); // 记录开始时间
             
             // 确保所有砖块都在正确的位置
             this.forceResetAllTiles();
@@ -350,9 +365,26 @@ class Game2048 {
             this.isDragging = false;
             this.tileContainer.classList.remove('dragging-active');
             
+            // 检查是否是快速滑动（鼠标也支持快速滑动）
+            const dragDuration = Date.now() - this.dragStartTime;
+            const isQuickSwipe = dragDuration < this.quickSwipeThreshold;
+            
             if (this.dragDirection && this.dragDistance > this.minDragDistance) {
-                // 从拖动预览状态平滑过渡到实际移动
-                this.transitionFromDragToMove(this.dragDirection);
+                if (isQuickSwipe && this.quickSwipeEnabled) {
+                    // 快速滑动：与触摸处理一致
+                    Object.values(this.tiles).forEach(tile => {
+                        tile.classList.remove('dragging');
+                        tile.style.transition = 'transform 0.08s ease-out';
+                        tile.style.transform = '';
+                    });
+                    
+                    setTimeout(() => {
+                        this.move(this.dragDirection);
+                    }, 80);
+                } else {
+                    // 慢速拖动：从拖动预览状态平滑过渡到实际移动
+                    this.transitionFromDragToMove(this.dragDirection);
+                }
             } else {
                 this.resetTileTransforms();
             }
@@ -600,7 +632,7 @@ class Game2048 {
             }
         });
         
-        // 150ms后处理合并
+        // 120ms后处理合并（与CSS动画时间一致）
         setTimeout(() => {
             merges.forEach(merge => {
                 // 移除被合并的方块
@@ -635,8 +667,8 @@ class Game2048 {
             }
             
             // 再等待一小段时间后执行回调
-            setTimeout(callback, 50);
-        }, 150);
+            setTimeout(callback, 30);
+        }, 120);
     }
     
     addNewTile() {
@@ -1580,7 +1612,7 @@ class Game2048 {
             }
         });
         
-        // 150ms后处理合并和位置更新
+        // 120ms后处理合并和位置更新（与正常动画时间一致）
         setTimeout(() => {
             // 更新所有移动砖块的实际位置
             movements.forEach(movement => {
@@ -1639,8 +1671,8 @@ class Game2048 {
                 // 强制重置所有砖块到正确位置
                 this.forceResetAllTiles();
                 callback();
-            }, 50);
-        }, 150);
+            }, 30);
+        }, 120);
     }
 }
 

@@ -505,9 +505,9 @@ h1 {
     height: calc((100% - 30px) / 4);
     /* 分离不同属性的过渡效果 */
     transition: 
-        top 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        left 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        transform 0.1s ease-out,
+        top 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        left 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        transform 0.08s ease-out,
         border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
     
     /* 定义并使用CSS变量来统一控制圆角 */
@@ -539,12 +539,12 @@ h1 {
     will-change: transform;
 }
 
-/* 移动时的特殊样式 */
+/* 移动时的特殊样式 - 使用与键盘操作相同的时间 */
 .tile.moving {
     transition: 
-        top 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        left 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        top 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        left 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
 
 /* 拖动状态下的容器效果 */
