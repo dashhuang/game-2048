@@ -536,6 +536,7 @@ h1 {
 /* 拖动时的特殊样式 */
 .tile.dragging {
     transition: transform 0.05s linear !important;
+    will-change: transform;
 }
 
 /* 移动时的特殊样式 */
@@ -549,6 +550,24 @@ h1 {
 /* 拖动状态下的容器效果 */
 .tile-container.dragging-active {
     transition: opacity 0.2s ease;
+}
+
+/* 移动设备上的性能优化 */
+@media (max-width: 520px) {
+    /* 在移动设备上简化动画 */
+    .tile.dragging {
+        transition: none !important;
+    }
+    
+    /* 减少不必要的效果 */
+    .tile-container.dragging-active .tile:not(.dragging) {
+        opacity: 0.85; /* 减少透明度变化 */
+    }
+    
+    /* 移除拖动时的阴影效果 */
+    .tile.dragging .liquidGlass-effect {
+        filter: url(#glass-distortion);
+    }
 }
 
 .tile-container.dragging-active .tile:not(.dragging) {

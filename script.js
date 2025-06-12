@@ -50,6 +50,22 @@ class Game2048 {
         this.minDragDistance = 30; // 触发移动的最小距离
         this.dragThreshold = 10; // 开始显示拖动效果的阈值
         
+        // 快速滑动检测
+        this.dragStartTime = 0;
+        this.quickSwipeThreshold = 200; // 200ms内完成的滑动视为快速滑动
+        this.quickSwipeEnabled = true;
+        this.lastTouchMoveTime = 0;
+        this.touchMoveThrottle = 16; // 约60fps的节流
+        
+        // 拖动预览开关（可以在低端设备上禁用）
+        this.dragPreviewEnabled = true;
+        // 检测是否是移动设备
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        // 在旧设备上默认禁用拖动预览
+        if (isMobile && window.innerWidth <= 400) {
+            this.dragPreviewEnabled = true; // 保持开启，但可以根据需要改为false
+        }
+        
         this.setup();
         this.updateDisplay();
         
@@ -183,9 +199,13 @@ class Game2048 {
             this.currentDragY = this.dragStartY;
             this.dragDirection = null;
             this.dragDistance = 0;
+            this.dragStartTime = Date.now(); // 记录开始时间
             
-            // 确保所有砖块都在正确的位置
-            this.forceResetAllTiles();
+            // 快速滑动时不需要重置所有砖块
+            if (!this.quickSwipeEnabled) {
+                // 确保所有砖块都在正确的位置
+                this.forceResetAllTiles();
+            }
             
             // 添加拖动状态类到游戏容器
             this.tileContainer.classList.add('dragging-active');
@@ -193,6 +213,14 @@ class Game2048 {
         
         document.addEventListener('touchmove', (e) => {
             if (!this.isDragging || this.isAnimating) return;
+            
+            const currentTime = Date.now();
+            
+            // 节流处理，减少更新频率
+            if (currentTime - this.lastTouchMoveTime < this.touchMoveThrottle) {
+                return;
+            }
+            this.lastTouchMoveTime = currentTime;
             
             const currentX = e.touches[0].clientX;
             const currentY = e.touches[0].clientY;
@@ -219,8 +247,14 @@ class Game2048 {
                     this.dragDistance = absDiffY;
                 }
                 
-                // 更新预览效果
-                this.updateDragPreview(diffX, diffY);
+                // 检测是否是快速滑动
+                const dragDuration = currentTime - this.dragStartTime;
+                const isQuickSwipe = dragDuration < this.quickSwipeThreshold && this.dragDistance > this.minDragDistance;
+                
+                // 只有在慢速拖动且启用了拖动预览时才更新预览效果
+                if (!isQuickSwipe && this.quickSwipeEnabled && this.dragPreviewEnabled) {
+                    this.updateDragPreview(diffX, diffY);
+                }
             }
         }, { passive: false });
         
@@ -232,10 +266,20 @@ class Game2048 {
             // 移除拖动状态类
             this.tileContainer.classList.remove('dragging-active');
             
+            // 计算滑动时长
+            const dragDuration = Date.now() - this.dragStartTime;
+            const isQuickSwipe = dragDuration < this.quickSwipeThreshold;
+            
             // 执行移动动画
             if (this.dragDirection && this.dragDistance > this.minDragDistance) {
-                // 从拖动预览状态平滑过渡到实际移动
-                this.transitionFromDragToMove(this.dragDirection);
+                if (isQuickSwipe && this.quickSwipeEnabled) {
+                    // 快速滑动：直接执行移动，跳过过渡动画
+                    this.resetTileTransforms();
+                    this.move(this.dragDirection);
+                } else {
+                    // 慢速拖动：从拖动预览状态平滑过渡到实际移动
+                    this.transitionFromDragToMove(this.dragDirection);
+                }
             } else {
                 // 如果没有达到移动阈值，恢复原位
                 this.resetTileTransforms();
@@ -1090,6 +1134,9 @@ class Game2048 {
             basePreviewY = Math.max(-maxOffset, Math.min(maxOffset, offsetY * dampingFactor));
         }
         
+        // 批量更新所有砖块的transform
+        const transforms = [];
+        
         // 应用transform到所有可移动的砖块
         for (let row = 0; row < this.size; row++) {
             for (let col = 0; col < this.size; col++) {
@@ -1100,52 +1147,47 @@ class Game2048 {
                     // 检查这个砖块在当前方向上是否可以移动
                     if (this.canTileMove(row, col, this.dragDirection)) {
                         // 添加dragging类
-                        element.classList.add('dragging');
+                        if (!element.classList.contains('dragging')) {
+                            element.classList.add('dragging');
+                        }
                         
-                        // 使用requestAnimationFrame确保流畅
-                        requestAnimationFrame(() => {
-                            // 计算渐进的偏移量
-                            const progress = Math.min(this.dragDistance / this.minDragDistance, 1);
-                            const easedProgress = this.easeOutCubic(progress);
-                            
-                            // 计算每个砖块可以移动的最大距离
-                            let maxMoveDistance = 0;
-                            let positionFactor = 1;
-                            
-                            if (this.dragDirection === 'left') {
-                                maxMoveDistance = col * unitDistance;
-                                positionFactor = 1; // 所有砖块都尽可能移动到最左
-                            } else if (this.dragDirection === 'right') {
-                                maxMoveDistance = (this.size - 1 - col) * unitDistance;
-                                positionFactor = 1; // 所有砖块都尽可能移动到最右
-                            } else if (this.dragDirection === 'up') {
-                                maxMoveDistance = row * unitDistance;
-                                positionFactor = 1; // 所有砖块都尽可能移动到最上
-                            } else if (this.dragDirection === 'down') {
-                                maxMoveDistance = (this.size - 1 - row) * unitDistance;
-                                positionFactor = 1; // 所有砖块都尽可能移动到最下
-                            }
-                            
-                            // 计算实际偏移量，但不超过砖块可以移动的最大距离
-                            const targetOffset = this.dragDirection === 'left' || this.dragDirection === 'right' 
-                                ? basePreviewX : basePreviewY;
-                            const actualOffset = Math.sign(targetOffset) * 
-                                Math.min(Math.abs(targetOffset * easedProgress), maxMoveDistance * 0.9);
-                            
-                            const actualX = this.dragDirection === 'left' || this.dragDirection === 'right' 
-                                ? actualOffset : 0;
-                            const actualY = this.dragDirection === 'up' || this.dragDirection === 'down' 
-                                ? actualOffset : 0;
-                            
-                            // 添加轻微的缩放和倾斜效果
-                            const scale = 1 + (progress * 0.02);
-                            const rotate = this.dragDirection === 'left' ? -1 : 
-                                         this.dragDirection === 'right' ? 1 : 
-                                         this.dragDirection === 'up' ? -0.5 : 0.5;
-                            const rotateAngle = rotate * progress * 2;
-                            
-                            element.style.transform = `translate(${actualX}px, ${actualY}px) scale(${scale}) rotate(${rotateAngle}deg)`;
-                        });
+                        // 计算渐进的偏移量
+                        const progress = Math.min(this.dragDistance / this.minDragDistance, 1);
+                        const easedProgress = this.easeOutCubic(progress);
+                        
+                        // 计算每个砖块可以移动的最大距离
+                        let maxMoveDistance = 0;
+                        
+                        if (this.dragDirection === 'left') {
+                            maxMoveDistance = col * unitDistance;
+                        } else if (this.dragDirection === 'right') {
+                            maxMoveDistance = (this.size - 1 - col) * unitDistance;
+                        } else if (this.dragDirection === 'up') {
+                            maxMoveDistance = row * unitDistance;
+                        } else if (this.dragDirection === 'down') {
+                            maxMoveDistance = (this.size - 1 - row) * unitDistance;
+                        }
+                        
+                        // 计算实际偏移量，但不超过砖块可以移动的最大距离
+                        const targetOffset = this.dragDirection === 'left' || this.dragDirection === 'right' 
+                            ? basePreviewX : basePreviewY;
+                        const actualOffset = Math.sign(targetOffset) * 
+                            Math.min(Math.abs(targetOffset * easedProgress), maxMoveDistance * 0.9);
+                        
+                        const actualX = this.dragDirection === 'left' || this.dragDirection === 'right' 
+                            ? actualOffset : 0;
+                        const actualY = this.dragDirection === 'up' || this.dragDirection === 'down' 
+                            ? actualOffset : 0;
+                        
+                        // 添加轻微的缩放和倾斜效果
+                        const scale = 1 + (progress * 0.02);
+                        const rotate = this.dragDirection === 'left' ? -1 : 
+                                     this.dragDirection === 'right' ? 1 : 
+                                     this.dragDirection === 'up' ? -0.5 : 0.5;
+                        const rotateAngle = rotate * progress * 2;
+                        
+                        // 直接设置transform，不使用requestAnimationFrame
+                        element.style.transform = `translate(${actualX}px, ${actualY}px) scale(${scale}) rotate(${rotateAngle}deg)`;
                     } else {
                         element.classList.remove('dragging');
                         // 边缘的砖块保持原位
