@@ -559,20 +559,16 @@ h1 {
         transition: none !important;
     }
     
-    /* 减少不必要的效果 */
-    .tile-container.dragging-active .tile:not(.dragging) {
-        opacity: 0.85; /* 减少透明度变化 */
-    }
-    
     /* 移除拖动时的阴影效果 */
     .tile.dragging .liquidGlass-effect {
         filter: url(#glass-distortion);
     }
 }
 
-.tile-container.dragging-active .tile:not(.dragging) {
+/* 移除拖动时的透明效果 - 保持所有砖块外观一致 */
+/* .tile-container.dragging-active .tile:not(.dragging) {
     opacity: 0.7;
-}
+} */
 
 /* 为拖动的砖块添加阴影效果 */
 .tile.dragging {
