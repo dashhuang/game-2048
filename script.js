@@ -275,19 +275,38 @@ class Game2048 {
             const dragDuration = Date.now() - this.dragStartTime;
             const isQuickSwipe = dragDuration < this.quickSwipeThreshold;
             
+            // 对于快速滑动，降低移动阈值
+            const effectiveMinDistance = isQuickSwipe ? this.minDragDistance * 0.5 : this.minDragDistance;
+            
             // 执行移动动画
-            if (this.dragDirection && this.dragDistance > this.minDragDistance) {
+            if (this.dragDirection && this.dragDistance > effectiveMinDistance) {
                 if (isQuickSwipe && this.quickSwipeEnabled) {
-                    // 快速滑动：直接执行移动，不重置transform
-                    // move方法会自动处理砖块位置的同步
+                    // 快速滑动：先立即重置所有transform，避免残留
+                    Object.values(this.tiles).forEach(tile => {
+                        tile.classList.remove('dragging');
+                        tile.style.transition = 'none';
+                        tile.style.transform = '';
+                    });
+                    // 强制重绘
+                    void this.tileContainer.offsetHeight;
+                    // 恢复transition后执行移动
+                    Object.values(this.tiles).forEach(tile => {
+                        tile.style.transition = '';
+                    });
                     this.move(this.dragDirection);
                 } else {
                     // 慢速拖动：从拖动预览状态平滑过渡到实际移动
                     this.transitionFromDragToMove(this.dragDirection);
                 }
             } else {
-                // 如果没有达到移动阈值，恢复原位
-                this.resetTileTransforms();
+                // 如果没有达到移动阈值
+                if (isQuickSwipe) {
+                    // 快速滑动但距离不够：立即重置，避免卡在中间
+                    this.forceResetAllTiles();
+                } else {
+                    // 慢速拖动：平滑恢复原位
+                    this.resetTileTransforms();
+                }
             }
         }, { passive: true });
         
@@ -360,16 +379,37 @@ class Game2048 {
             const dragDuration = Date.now() - this.dragStartTime;
             const isQuickSwipe = dragDuration < this.quickSwipeThreshold;
             
-            if (this.dragDirection && this.dragDistance > this.minDragDistance) {
+            // 对于快速滑动，降低移动阈值
+            const effectiveMinDistance = isQuickSwipe ? this.minDragDistance * 0.5 : this.minDragDistance;
+            
+            if (this.dragDirection && this.dragDistance > effectiveMinDistance) {
                 if (isQuickSwipe && this.quickSwipeEnabled) {
-                    // 快速滑动：直接执行移动，不重置transform
+                    // 快速滑动：先立即重置所有transform，避免残留
+                    Object.values(this.tiles).forEach(tile => {
+                        tile.classList.remove('dragging');
+                        tile.style.transition = 'none';
+                        tile.style.transform = '';
+                    });
+                    // 强制重绘
+                    void this.tileContainer.offsetHeight;
+                    // 恢复transition后执行移动
+                    Object.values(this.tiles).forEach(tile => {
+                        tile.style.transition = '';
+                    });
                     this.move(this.dragDirection);
                 } else {
                     // 慢速拖动：从拖动预览状态平滑过渡到实际移动
                     this.transitionFromDragToMove(this.dragDirection);
                 }
             } else {
-                this.resetTileTransforms();
+                // 如果没有达到移动阈值
+                if (isQuickSwipe) {
+                    // 快速滑动但距离不够：立即重置，避免卡在中间
+                    this.forceResetAllTiles();
+                } else {
+                    // 慢速拖动：平滑恢复原位
+                    this.resetTileTransforms();
+                }
             }
         });
     }
