@@ -464,7 +464,7 @@ h1 {
     z-index: 0;
     backdrop-filter: blur(5px) saturate(120%);
     -webkit-backdrop-filter: blur(5px) saturate(120%);
-    filter: url(#glass-distortion);
+    filter: url(#ripple-20);
 }
 
 .liquidGlass-wrapper > .liquidGlass-tint {
@@ -561,7 +561,7 @@ h1 {
     
     /* 移除拖动时的阴影效果 */
     .tile.dragging .liquidGlass-effect {
-        filter: url(#glass-distortion);
+        filter: url(#ripple-20);
     }
 }
 
@@ -576,7 +576,7 @@ h1 {
 }
 
 .tile.dragging .liquidGlass-effect {
-    filter: url(#glass-distortion) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+    filter: url(#ripple-20) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
 }
 
 .tile.dragging .liquidGlass-shine {
@@ -593,7 +593,7 @@ h1 {
   inset: 0;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
-  filter: url(#glass-distortion);
+  filter: url(#ripple-20);
   overflow: hidden;
   isolation: isolate;
   display: block !important;
@@ -1142,10 +1142,10 @@ h1 {
 }
 
 .ui-liquid-wrapper > .liquidGlass-effect {
-    z-index: 0;
-    backdrop-filter: blur(5px) saturate(120%);
-    -webkit-backdrop-filter: blur(5px) saturate(120%);
-    filter: url(#glass-distortion);
+  z-index: 0;
+  backdrop-filter: blur(5px) saturate(120%);
+  -webkit-backdrop-filter: blur(5px) saturate(120%);
+  filter: url(#ripple-20);
 }
 
 .ui-liquid-wrapper > .liquidGlass-tint {
