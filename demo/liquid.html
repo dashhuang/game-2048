@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多种玻璃效果选择器</title>
+    <style>
+        html,body{height:100%;min-height:500vh;margin:0;font-family:system-ui,sans-serif;overflow-x:hidden}
+.bg{position:absolute;inset:0;z-index:-1}
+.bg img{width:100%;display:block}
+
+.glass{
+  position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-50%);
+  width:20rem;height:20rem;border-radius:5%;
+  background:rgba(255,255,255,.08);border:2px solid transparent;
+  box-shadow:0 0 0 2px rgba(255,255,255,.6),0 16px 32px rgba(0,0,0,.12);
+  backdrop-filter:url(#liquid);-webkit-backdrop-filter:url(#liquid);
+  display:grid;place-items:center;cursor:pointer;outline:0;
+  transition: all 0.3s ease;
+}
+
+.glass::before,
+.glass::after{
+  content:"";position:absolute;width:40%;height:10px;background:#fff;border-radius:10px;
+  transition: all 0.3s ease;
+}
+.glass::after{transform:rotate(90deg)}
+
+.controls {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(0,0,0,0.8);
+  padding: 20px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 14px;
+  min-width: 280px;
+}
+
+.controls h3 {
+  margin: 0 0 15px 0;
+  color: #4CAF50;
+  text-align: center;
+}
+
+.effect-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.effect-btn {
+  padding: 12px 8px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.effect-btn:hover {
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.effect-btn.active {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+.effect-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.effect-btn:hover::before {
+  left: 100%;
+}
+
+.intensity-control {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #333;
+}
+
+.intensity-control label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ccc;
+}
+
+.intensity-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #333;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.intensity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.intensity-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <h3>🔮 玻璃效果选择器</h3>
+    <div class="effect-grid">
+      <div class="effect-btn active" data-effect="liquid" onclick="switchEffect('liquid')">
+        💧 液体玻璃<br><small>透明放大镜</small>
+      </div>
+      <div class="effect-btn" data-effect="crystal" onclick="switchEffect('crystal')">
+        💎 水晶玻璃<br><small>高频细腻纹理</small>
+      </div>
+      <div class="effect-btn" data-effect="frosted" onclick="switchEffect('frosted')">
+        ❄️ 磨砂玻璃<br><small>柔和模糊效果</small>
+      </div>
+      <div class="effect-btn" data-effect="ripple" onclick="switchEffect('ripple')">
+        🌊 波纹玻璃<br><small>水波纹理</small>
+      </div>
+      <div class="effect-btn" data-effect="prism" onclick="switchEffect('prism')">
+        🌈 棱镜玻璃<br><small>彩色分散</small>
+      </div>
+      <div class="effect-btn" data-effect="vintage" onclick="switchEffect('vintage')">
+        🏛️ 复古玻璃<br><small>复古质感</small>
+      </div>
+    </div>
+    
+    <div class="intensity-control">
+      <label for="intensity">效果强度: <span id="intensityValue">50%</span></label>
+      <input type="range" id="intensity" class="intensity-slider" min="0" max="100" value="50" oninput="updateIntensity(this.value)">
+    </div>
+  </div>
+
+<div class="bg">
+    <img src="https://i.ibb.co/bMvc7Zr6/Vibrant-Summer-Meadow-Watercolor.png" alt="">
+    <img src="https://i.ibb.co/ZRH04pV3/Vibrant-Summer-Meadow-Watercolor-1.png" alt="">
+    <img src="https://i.ibb.co/bMvc7Zr6/Vibrant-Summer-Meadow-Watercolor.png" alt="">
+  </div>
+  
+  <button id="btn" class="glass"></button>
+  
+  <svg style="position:absolute;width:0;height:0">
+    <defs>
+            <!-- 液体玻璃效果 - 透明放大镜版本 -->
+      <filter id="liquid" primitiveUnits="objectBoundingBox">
+        <!-- 创建基础噪声来模拟径向渐变 -->
+        <feTurbulence baseFrequency="0.005" numOctaves="1" type="fractalNoise" result="radialNoise"/>
+        
+        <!-- 转换为径向渐变形状，增强放大效果 -->
+        <feComponentTransfer in="radialNoise" result="radialShape">
+          <feFuncR type="gamma" amplitude="1.5" exponent="0.7" offset="0.25"/>
+          <feFuncG type="gamma" amplitude="1.5" exponent="0.7" offset="0.25"/>
+        </feComponentTransfer>
+        
+        <!-- 增强放大效果的渐变差异 -->
+        <feComponentTransfer in="radialShape" result="enhancedRadial">
+          <feFuncR type="table" tableValues="0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.8 0.7 0.6 0.5 0.4 0.3"/>
+          <feFuncG type="table" tableValues="0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.8 0.7 0.6 0.5 0.4 0.3"/>
+        </feComponentTransfer>
+        
+        <!-- 极其轻微的表面纹理 -->
+        <feTurbulence baseFrequency="0.008" numOctaves="1" type="fractalNoise" result="surfaceDetail"/>
+        <feGaussianBlur in="surfaceDetail" stdDeviation="0.001" result="softSurfaceDetail"/>
+        
+        <!-- 最小化表面细节影响 -->
+        <feComponentTransfer in="softSurfaceDetail" result="limitedSurfaceDetail">
+          <feFuncR type="linear" slope="0.05" intercept="0.7"/>
+          <feFuncG type="linear" slope="0.05" intercept="0.7"/>
+        </feComponentTransfer>
+        
+        <!-- 合成径向效果和表面细节 -->
+        <feComposite in="enhancedRadial" in2="limitedSurfaceDetail" operator="multiply" result="finalRadialMap"/>
+        
+        <!-- 最小模糊，最大通透感 -->
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.006" result="blurredSource"/>
+        
+        <!-- 应用明显的放大位移效果 -->
+        <feDisplacementMap id="liquidDisp" in="blurredSource" in2="finalRadialMap" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+
+      <!-- 水晶玻璃效果 -->
+      <filter id="crystal" primitiveUnits="objectBoundingBox">
+        <feTurbulence baseFrequency="0.06" numOctaves="3" result="noise"/>
+        <!-- 限制噪声范围避免极值 -->
+        <feComponentTransfer in="noise" result="limitedNoise">
+          <feFuncR type="linear" slope="0.6" intercept="0.3"/>
+          <feFuncG type="linear" slope="0.6" intercept="0.3"/>
+        </feComponentTransfer>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.02" result="blur"/>
+        <feDisplacementMap id="crystalDisp" in="blur" in2="limitedNoise" scale="0.8" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+
+      <!-- 磨砂玻璃效果 -->
+      <filter id="frosted" primitiveUnits="objectBoundingBox">
+        <feGaussianBlur id="frostedBlur" in="SourceGraphic" stdDeviation="0.06"/>
+      </filter>
+
+      <!-- 波纹玻璃效果 -->
+      <filter id="ripple" primitiveUnits="objectBoundingBox">
+        <feTurbulence baseFrequency="0.015" numOctaves="2" type="turbulence" result="rippleNoise"/>
+        <!-- 平滑波纹效果避免过度失真 -->
+        <feComponentTransfer in="rippleNoise" result="smoothRipple">
+          <feFuncR type="linear" slope="0.7" intercept="0.25"/>
+          <feFuncG type="linear" slope="0.7" intercept="0.25"/>
+        </feComponentTransfer>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.015" result="blur"/>
+        <feDisplacementMap id="rippleDisp" in="blur" in2="smoothRipple" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+
+      <!-- 棱镜玻璃效果 -->
+      <filter id="prism" primitiveUnits="objectBoundingBox">
+        <feTurbulence baseFrequency="0.025" numOctaves="2" result="prismNoise"/>
+        <!-- 限制棱镜扭曲范围 -->
+        <feComponentTransfer in="prismNoise" result="limitedPrismNoise">
+          <feFuncR type="linear" slope="0.6" intercept="0.3"/>
+          <feFuncG type="linear" slope="0.6" intercept="0.3"/>
+        </feComponentTransfer>
+        <feColorMatrix in="SourceGraphic" type="hueRotate" values="0" result="hue"/>
+        <feGaussianBlur in="hue" stdDeviation="0.022" result="blur"/>
+        <feDisplacementMap id="prismDisp" in="blur" in2="limitedPrismNoise" scale="0.9" xChannelSelector="R" yChannelSelector="G"/>
+        <feColorMatrix type="saturate" values="1.1"/>
+      </filter>
+
+      <!-- 复古玻璃效果 -->
+      <filter id="vintage" primitiveUnits="objectBoundingBox">
+        <feTurbulence baseFrequency="0.05" numOctaves="5" result="vintageNoise"/>
+        <feColorMatrix in="SourceGraphic" type="matrix" values="1.1 0.1 0.1 0 0  0.1 1.0 0.1 0 0  0.1 0.1 0.9 0 0  0 0 0 1 0" result="sepia"/>
+        <feGaussianBlur in="sepia" stdDeviation="0.025" result="blur"/>
+        <feDisplacementMap id="vintageDisp" in="blur" in2="vintageNoise" scale="0.6" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+
+      <!-- 默认效果ID映射到liquid -->
+      <filter id="frosted-original" primitiveUnits="objectBoundingBox">
+        <use href="#liquid"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <script>
+    const btn = document.getElementById('btn');
+    let currentEffect = 'liquid';
+    let currentIntensity = 50;
+
+    // 效果配置 - 所有参数已优化避免过度透明和失真
+    const effectConfigs = {
+      liquid: { baseScale: 1.8, hoverScale: 2.4, blur: 0.006 },
+      crystal: { baseScale: 0.8, hoverScale: 1.2, blur: 0.02 },
+      frosted: { baseScale: 0, hoverScale: 0, blur: 0.06 },
+      ripple: { baseScale: 1.0, hoverScale: 1.4, blur: 0.015 },
+      prism: { baseScale: 0.9, hoverScale: 1.3, blur: 0.022 },
+      vintage: { baseScale: 0.6, hoverScale: 1.0, blur: 0.025 }
+    };
+
+    // 切换效果
+    function switchEffect(effect) {
+      currentEffect = effect;
+      
+      // 更新按钮状态
+      document.querySelectorAll('.effect-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-effect="${effect}"]`).classList.add('active');
+      
+      // 应用滤镜
+      applyFilter();
+      
+      // 更新特殊效果
+      updateSpecialEffects(effect);
+    }
+
+    // 更新强度
+    function updateIntensity(value) {
+      currentIntensity = value;
+      document.getElementById('intensityValue').textContent = value + '%';
+      applyFilter();
+    }
+
+    // 应用滤镜
+    function applyFilter() {
+      const intensity = currentIntensity / 100;
+      const config = effectConfigs[currentEffect];
+      
+      btn.style.backdropFilter = `url(#${currentEffect})`;
+      btn.style.webkitBackdropFilter = `url(#${currentEffect})`;
+      
+      // 根据强度调整效果参数
+      updateFilterParameters(currentEffect, intensity, config);
+    }
+
+    // 更新滤镜参数
+    function updateFilterParameters(effect, intensity, config) {
+      const baseScale = config.baseScale * intensity;
+      const hoverScale = config.hoverScale * intensity;
+      
+      if (effect === 'frosted') {
+        const blurElement = document.getElementById('frostedBlur');
+        if (blurElement) {
+          blurElement.setAttribute('stdDeviation', config.blur * intensity);
+        }
+      } else {
+        const dispElement = document.getElementById(effect + 'Disp');
+        if (dispElement) {
+          dispElement.setAttribute('scale', baseScale);
+        }
+      }
+    }
+
+    // 更新特殊效果
+    function updateSpecialEffects(effect) {
+      const glass = document.querySelector('.glass');
+      
+      // 重置所有特殊样式
+      glass.style.filter = '';
+      glass.style.border = '2px solid transparent';
+      glass.style.boxShadow = '0 0 0 2px rgba(255,255,255,.6),0 16px 32px rgba(0,0,0,.12)';
+      
+      switch(effect) {
+        case 'liquid':
+          glass.style.border = '2px solid rgba(255,255,255,0.3)';
+          glass.style.boxShadow = '0 0 0 2px rgba(255,255,255,.5), 0 16px 32px rgba(0,0,0,.1), inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.05)';
+          break;
+        case 'prism':
+          glass.style.border = '2px solid rgba(255,255,255,0.8)';
+          glass.style.filter = 'hue-rotate(0deg)';
+          break;
+        case 'vintage':
+          glass.style.filter = 'sepia(0.3) contrast(1.1)';
+          glass.style.border = '2px solid rgba(210,180,140,0.6)';
+          break;
+        case 'crystal':
+          glass.style.border = '2px solid rgba(173,216,230,0.8)';
+          break;
+      }
+    }
+
+    // 鼠标悬停效果
+    btn.addEventListener('mouseenter', () => {
+      const config = effectConfigs[currentEffect];
+      const intensity = currentIntensity / 100;
+      const hoverScale = config.hoverScale * intensity;
+      
+      if (currentEffect !== 'frosted') {
+        const dispElement = document.getElementById(currentEffect + 'Disp');
+        if (dispElement) {
+          dispElement.setAttribute('scale', hoverScale);
+        }
+      } else {
+        const blurElement = document.getElementById('frostedBlur');
+        if (blurElement) {
+          blurElement.setAttribute('stdDeviation', config.blur * intensity * 1.5);
+        }
+      }
+      
+      // 特殊悬停效果
+      if (currentEffect === 'prism') {
+        btn.style.filter = 'hue-rotate(30deg)';
+      } else if (currentEffect === 'liquid') {
+        btn.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.7), 0 20px 40px rgba(0,0,0,.15), inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.08)';
+      }
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      applyFilter();
+      
+      // 重置特殊悬停效果
+      if (currentEffect === 'prism') {
+        btn.style.filter = 'hue-rotate(0deg)';
+      }
+      
+      // 重新应用当前效果的特殊样式
+      updateSpecialEffects(currentEffect);
+    });
+
+    // 初始化
+    window.addEventListener('load', () => {
+      applyFilter();
+      updateSpecialEffects(currentEffect);
+    });
+  </script>
+
+</body>
+</html>

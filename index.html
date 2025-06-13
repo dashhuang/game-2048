@@ -59,6 +59,19 @@
                     
                 <feGaussianBlur stdDeviation="0.8" />
             </filter>
+            
+            <!-- 20%波纹玻璃效果 -->
+            <filter id="ripple-20" primitiveUnits="objectBoundingBox">
+                <feTurbulence baseFrequency="0.015" numOctaves="2" type="turbulence" result="rippleNoise"/>
+                <!-- 平滑波纹效果避免过度失真 -->
+                <feComponentTransfer in="rippleNoise" result="smoothRipple">
+                    <feFuncR type="linear" slope="0.7" intercept="0.25"/>
+                    <feFuncG type="linear" slope="0.7" intercept="0.25"/>
+                </feComponentTransfer>
+                <feGaussianBlur in="SourceGraphic" stdDeviation="0.015" result="blur"/>
+                <!-- 20%强度：基础scale 1.0 * 0.2 = 0.2 -->
+                <feDisplacementMap in="blur" in2="smoothRipple" scale="0.2" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
         </defs>
     </svg>
     
