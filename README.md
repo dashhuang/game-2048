@@ -49,7 +49,12 @@
 ├── index.html      # 游戏主页面
 ├── style.css       # 样式文件
 ├── script.js       # 游戏逻辑
-└── README.md      # 项目说明
+├── README.md       # 项目说明
+└── liquid-glass/   # 液态玻璃效果示例代码
+    ├── src/        # 源代码
+    │   ├── index.html
+    │   └── style.css
+    └── dist/       # 构建输出
 ```
 
 ### 技术栈
@@ -62,6 +67,41 @@
   - 高级动画与过渡效果
 - **原生JavaScript**：ES6类语法，事件监听，DOM操作
 - **SVG滤镜**：feTurbulence噪声生成，feDisplacementMap位移映射
+
+### 液态玻璃效果技术解析
+项目中的液态玻璃效果是通过SVG滤镜实现的，主要技术点包括：
+
+1. **SVG位移映射（Displacement Mapping）**
+   ```svg
+   <feDisplacementMap in="blur" in2="map" scale="1" 
+                      xChannelSelector="R" yChannelSelector="G">
+   ```
+   - 使用位移映射图像的红色和绿色通道来控制像素的水平和垂直偏移
+   - scale参数控制扭曲强度，可通过动画动态调整
+
+2. **高斯模糊预处理**
+   ```svg
+   <feGaussianBlur in="SourceGraphic" stdDeviation="0.02" result="blur"/>
+   ```
+   - 对源图像应用轻微模糊，使扭曲效果更加平滑自然
+
+3. **动态交互效果**
+   - 鼠标悬停时通过SVG动画增加scale值（1→1.4）
+   - 创造类似液体流动的视觉效果
+   - 使用`fill="freeze"`保持动画结束状态
+
+4. **CSS毛玻璃配合**
+   ```css
+   backdrop-filter: url(#frosted);
+   -webkit-backdrop-filter: url(#frosted);
+   ```
+   - 结合CSS的backdrop-filter和SVG滤镜
+   - 实现背景扭曲而不影响前景元素
+
+5. **性能优化策略**
+   - 使用base64编码的位移映射图像，减少HTTP请求
+   - backdrop-filter只影响背景，提高渲染效率
+   - 合理的stdDeviation值避免过度计算
 
 ### 核心算法
 1. **移动算法**：
@@ -213,3 +253,15 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
     - 快速滑动时不再卡手，操作更加流畅
     - 保留慢速拖动的细腻预览效果
     - 平衡了视觉效果和性能表现
+
+### v1.5 - 技术研究与文档完善
+- **液态玻璃效果研究**:
+    - 添加liquid-glass示例代码，展示纯SVG滤镜实现的液态玻璃效果
+    - 深入分析SVG位移映射（feDisplacementMap）技术原理
+    - 研究高斯模糊与位移映射结合的视觉效果
+    - 探索鼠标交互动画的实现方式
+- **技术文档完善**:
+    - 在README中添加液态玻璃效果的详细技术解析
+    - 补充SVG滤镜的代码示例和参数说明
+    - 记录性能优化策略和浏览器兼容性考虑
+    - 更新项目文件结构说明
