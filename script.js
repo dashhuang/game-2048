@@ -86,6 +86,7 @@ class Game2048 {
 
         this.setup();
         this.updateDisplay();
+        this.startLiquidDriver && this.startLiquidDriver();
     }
     
     preventPageScroll() {
@@ -712,6 +713,9 @@ class Game2048 {
             // 触发液态爆发效果
             if (merges.length > 0) {
                 this.liquidBurst();
+                // 粘性 Gooey：短时间为容器加滤镜
+                this.tileContainer.classList.add('goo-active');
+                setTimeout(() => this.tileContainer.classList.remove('goo-active'), 160);
             }
             
             // 更新分数显示
@@ -1189,6 +1193,29 @@ class Game2048 {
     startLiquidAnimation() {
         // 移除液态动画，因为新的实现不需要动态修改滤镜参数
         // 液态效果现在是静态的，只在背景层显示
+    }
+
+    // 轻量液体驱动（桌面端常驻，移动端关）：缓动更新滤镜参数
+    startLiquidDriver() {
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReduced) return;
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) return;
+
+        const turb = document.querySelector('#glass-distortion feTurbulence');
+        const disp = document.querySelector('#glass-distortion feDisplacementMap');
+        if (!turb || !disp) return;
+
+        let t = 0;
+        const tick = () => {
+            t += 0.005;
+            const base = 0.01 + 0.003 * Math.sin(t * 0.7);
+            const scale = 14 + 2 * Math.sin(t * 0.5);
+            turb.setAttribute('baseFrequency', `${base} ${base}`);
+            disp.setAttribute('scale', `${scale.toFixed(2)}`);
+            this._liquidRAF = requestAnimationFrame(tick);
+        };
+        this._liquidRAF = requestAnimationFrame(tick);
     }
     
     // 液态爆发效果 - 用于合并动画
