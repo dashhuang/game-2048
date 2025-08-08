@@ -435,10 +435,7 @@ h1 {
     z-index: 4;  /* 在网格之上 */
 }
 
-/* 动态液体：在需要时可对容器施加 goo 粘性滤镜 */
-.tile-container.goo-active {
-    filter: url(#goo);
-}
+/* 取消容器 Gooey 以避免闪屏；改由局部滤镜参数脉冲增强 */
 
 /* 统一的液态玻璃容器样式 */
 .liquidGlass-wrapper {

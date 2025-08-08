@@ -713,9 +713,13 @@ class Game2048 {
             // 触发液态爆发效果
             if (merges.length > 0) {
                 this.liquidBurst();
-                // 粘性 Gooey：短时间为容器加滤镜
-                this.tileContainer.classList.add('goo-active');
-                setTimeout(() => this.tileContainer.classList.remove('goo-active'), 160);
+                // 更显著但稳定的合并脉冲：短时提高位移强度（避免对容器整体应用滤镜引发闪屏）
+                const disp = document.querySelector('#glass-distortion feDisplacementMap');
+                if (disp) {
+                    const originalScale = disp.getAttribute('scale') || '15';
+                    disp.setAttribute('scale', `${parseFloat(originalScale) + 10}`);
+                    setTimeout(() => disp.setAttribute('scale', originalScale), 160);
+                }
             }
             
             // 更新分数显示

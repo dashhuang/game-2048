@@ -269,7 +269,7 @@ this.undoRewardValue = 256;     // 获得撤销奖励的方块值
 
 ### v1.7 - 动态液体增强
 - **动态液体驱动**：桌面端为 `#glass-distortion` 轻微缓动（不影响可读性）
-- **Gooey 粘性**：合并时为 `tile-container` 短时加 `filter:url(#goo)` 模拟液滴融合
+- **合并脉冲**：合并时短时提高位移强度（取代容器 Gooey，避免闪屏）
 - **Safari 优化**：对 `.liquidGlass-effect` 增加 `translateZ(0)` 触发 GPU，加速滤镜动画
 - **液态玻璃效果研究**:
     - 添加liquid-glass示例代码，展示纯SVG滤镜实现的液态玻璃效果
