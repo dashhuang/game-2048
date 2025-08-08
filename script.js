@@ -67,6 +67,12 @@ class Game2048 {
         // 修复iOS视口高度问题
         this.fixViewportHeight();
 
+        // 记录滤镜基础参数（作为拖动/恢复基准）
+        const disp0 = document.querySelector('#glass-distortion feDisplacementMap');
+        const turb0 = document.querySelector('#glass-distortion feTurbulence');
+        this.baseDispScale = disp0 ? parseFloat(disp0.getAttribute('scale') || '15') : 15;
+        this.baseTurbFreq = turb0 ? parseFloat((turb0.getAttribute('baseFrequency') || '0.01').split(/\s+/)[0]) : 0.01;
+
         // 从本地存储尝试恢复状态
         const savedStateRaw = localStorage.getItem('gameState');
         if (savedStateRaw) {
@@ -274,6 +280,7 @@ class Game2048 {
                 // 只有在慢速拖动且启用了拖动预览时才更新预览效果
                 if (!isQuickSwipe && this.quickSwipeEnabled && this.dragPreviewEnabled) {
                     this.updateDragPreview(diffX, diffY);
+                    this.enhanceLiquidDuringDrag();
                 }
             }
         }, { passive: false });
@@ -285,6 +292,7 @@ class Game2048 {
             
             // 移除拖动状态类
             this.tileContainer.classList.remove('dragging-active');
+            this.resetLiquidAfterDrag();
             
             // 计算滑动时长
             const dragDuration = Date.now() - this.dragStartTime;
@@ -380,6 +388,7 @@ class Game2048 {
                 }
                 
                 this.updateDragPreview(diffX, diffY);
+                this.enhanceLiquidDuringDrag();
             }
         });
         
@@ -389,6 +398,7 @@ class Game2048 {
             mouseDown = false;
             this.isDragging = false;
             this.tileContainer.classList.remove('dragging-active');
+            this.resetLiquidAfterDrag();
             
             // 检查是否是快速滑动（鼠标也支持快速滑动）
             const dragDuration = Date.now() - this.dragStartTime;
@@ -1220,6 +1230,28 @@ class Game2048 {
             this._liquidRAF = requestAnimationFrame(tick);
         };
         this._liquidRAF = requestAnimationFrame(tick);
+    }
+
+    // 拖动期间增强液态效果：位移scale与噪声频率随拖动距离缓增
+    enhanceLiquidDuringDrag() {
+        const turb = document.querySelector('#glass-distortion feTurbulence');
+        const disp = document.querySelector('#glass-distortion feDisplacementMap');
+        if (!turb || !disp) return;
+        const distance = Math.min(this.dragDistance || 0, 120); // 上限
+        const k = distance / 120; // 0..1
+        const scale = this.baseDispScale + 8 * k;
+        const freq = this.baseTurbFreq + 0.008 * k;
+        disp.setAttribute('scale', `${scale.toFixed(2)}`);
+        turb.setAttribute('baseFrequency', `${freq.toFixed(4)} ${freq.toFixed(4)}`);
+    }
+
+    // 拖动结束恢复液态参数
+    resetLiquidAfterDrag() {
+        const turb = document.querySelector('#glass-distortion feTurbulence');
+        const disp = document.querySelector('#glass-distortion feDisplacementMap');
+        if (!turb || !disp) return;
+        disp.setAttribute('scale', `${this.baseDispScale}`);
+        turb.setAttribute('baseFrequency', `${this.baseTurbFreq} ${this.baseTurbFreq}`);
     }
     
     // 液态爆发效果 - 用于合并动画
