@@ -618,13 +618,11 @@ h1 {
   inset: 0; /* Changed back to 0 to ensure full coverage */
   z-index: 2;
   overflow: hidden;
-  /* Asymmetrical highlight mimicking a top-left light source */
-  box-shadow: 
-    /* Separate highlights for top and left edges for better corner rendering */
-    inset 0 1px 1px rgba(255, 255, 255, 0.6), /* Top edge highlight */
-    inset 1px 0 1px rgba(255, 255, 255, 0.6), /* Left edge highlight */
-    /* Faint highlight from bottom-right */
-    inset -0.5px -0.5px 1px rgba(255, 255, 255, 0.15);
+  /* 轻薄的倒角与边缘高光，贴近 Liquid Glass UI */
+  box-shadow:
+    inset 0 1px 0.5px rgba(255,255,255,0.7),
+    inset 1px 0 0.5px rgba(255,255,255,0.7),
+    inset -1px -1px 1px rgba(255,255,255,0.1);
   border-radius: var(--tile-border-radius);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
@@ -636,7 +634,7 @@ h1 {
 
 .tile .liquidGlass-text {
   z-index: 3;
-  font-size: 55px;
+  font-size: 52px;
   font-weight: bold;
   color: white;
   width: 100%;
@@ -644,7 +642,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
   border-radius: var(--tile-border-radius);
   transition: border-radius 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }

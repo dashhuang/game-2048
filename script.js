@@ -70,8 +70,8 @@ class Game2048 {
         // 记录滤镜基础参数（作为拖动/恢复基准）
         const disp0 = document.querySelector('#glass-distortion feDisplacementMap');
         const turb0 = document.querySelector('#glass-distortion feTurbulence');
-        this.baseDispScale = disp0 ? parseFloat(disp0.getAttribute('scale') || '15') : 15;
-        this.baseTurbFreq = turb0 ? parseFloat((turb0.getAttribute('baseFrequency') || '0.01').split(/\s+/)[0]) : 0.01;
+        this.baseDispScale = disp0 ? parseFloat(disp0.getAttribute('scale') || '10') : 10;
+        this.baseTurbFreq = turb0 ? parseFloat((turb0.getAttribute('baseFrequency') || '0.006').split(/\s+/)[0]) : 0.006;
 
         // 从本地存储尝试恢复状态
         const savedStateRaw = localStorage.getItem('gameState');
@@ -1223,8 +1223,8 @@ class Game2048 {
         let t = 0;
         const tick = () => {
             t += 0.005;
-            const base = 0.01 + 0.003 * Math.sin(t * 0.7);
-            const scale = 14 + 2 * Math.sin(t * 0.5);
+            const base = this.baseTurbFreq + 0.0025 * Math.sin(t * 0.7);
+            const scale = this.baseDispScale + 1.5 * Math.sin(t * 0.5);
             turb.setAttribute('baseFrequency', `${base} ${base}`);
             disp.setAttribute('scale', `${scale.toFixed(2)}`);
             this._liquidRAF = requestAnimationFrame(tick);
@@ -1239,8 +1239,8 @@ class Game2048 {
         if (!turb || !disp) return;
         const distance = Math.min(this.dragDistance || 0, 120); // 上限
         const k = distance / 120; // 0..1
-        const scale = this.baseDispScale + 8 * k;
-        const freq = this.baseTurbFreq + 0.008 * k;
+        const scale = this.baseDispScale + 6 * k;
+        const freq = this.baseTurbFreq + 0.006 * k;
         disp.setAttribute('scale', `${scale.toFixed(2)}`);
         turb.setAttribute('baseFrequency', `${freq.toFixed(4)} ${freq.toFixed(4)}`);
     }
