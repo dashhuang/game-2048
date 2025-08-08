@@ -1,14 +1,9 @@
-// 全局变量
-let touchStartX = null;
-let touchStartY = null;
-let animationId = null;
-
 class Game2048 {
     constructor() {
         this.size = 4;
         this.grid = [];
         this.score = 0;
-        this.bestScore = localStorage.getItem('bestScore') || 0;
+        this.bestScore = Number(localStorage.getItem('bestScore')) || 0;
         
         // 撤销系统
         this.stateHistory = []; // 历史状态栈
@@ -17,6 +12,7 @@ class Game2048 {
         this.undoCount = this.initialUndoCount; // 当前可用撤销次数
         this.maxUndoCount = 10; // 最大累计撤销次数
         this.undoRewardValue = 256; // 每合成256的倍数获得撤销次数
+        this.eventsBound = false; // 防止重复绑定事件
         
         this.tileContainer = document.getElementById('tile-container');
         this.scoreDisplay = document.getElementById('score');
@@ -66,14 +62,30 @@ class Game2048 {
             this.dragPreviewEnabled = true; // 保持开启，但可以根据需要改为false
         }
         
-        this.setup();
-        this.updateDisplay();
-        
         // 防止页面滚动
         this.preventPageScroll();
-        
         // 修复iOS视口高度问题
         this.fixViewportHeight();
+
+        // 从本地存储尝试恢复状态
+        const savedStateRaw = localStorage.getItem('gameState');
+        if (savedStateRaw) {
+            try {
+                const savedState = JSON.parse(savedStateRaw);
+                this.initFromState(savedState);
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.bestScoreDisplay.textContent = this.bestScore;
+                this.updateUndoButton();
+                this.startLiquidAnimation();
+                return;
+            } catch (_) {
+                // ignore parse errors and fall back to fresh setup
+            }
+        }
+
+        this.setup();
+        this.updateDisplay();
     }
     
     preventPageScroll() {
@@ -149,31 +161,33 @@ class Game2048 {
     
     setupEventListeners() {
         // 避免重复绑定，先存储事件处理器
+        if (this.eventsBound) return;
         if (!this.keydownHandler) {
             this.keydownHandler = (e) => {
+                if (e.repeat) return;
+                const key = (e.key || '').toLowerCase();
                 const keyMap = {
-                    37: 'left',  // Left arrow
-                    65: 'left',  // A
-                    38: 'up',    // Up arrow
-                    87: 'up',    // W
-                    39: 'right', // Right arrow
-                    68: 'right', // D
-                    40: 'down',  // Down arrow
-                    83: 'down'   // S
+                    arrowleft: 'left',
+                    a: 'left',
+                    arrowup: 'up',
+                    w: 'up',
+                    arrowright: 'right',
+                    d: 'right',
+                    arrowdown: 'down',
+                    s: 'down'
                 };
-                
-                const direction = keyMap[e.keyCode];
+                const direction = keyMap[key];
                 if (direction) {
                     e.preventDefault();
                     this.move(direction);
                 }
 
                 // 测试快捷键
-                if (e.keyCode === 57) { // "9" key
+                if (key === '9') { // "9" key
                     e.preventDefault();
                     this.showMessage('你赢了!', 'game-won');
                 }
-                if (e.keyCode === 48) { // "0" key
+                if (key === '0') { // "0" key
                     e.preventDefault();
                     this.showMessage('无路可走!', 'game-stuck');
                 }
@@ -412,6 +426,8 @@ class Game2048 {
                 }
             }
         });
+
+        this.eventsBound = true;
     }
     
     handleSwipe() {
@@ -449,53 +465,7 @@ class Game2048 {
             tile.classList.remove('dragging');
         });
         
-        const movements = [];
-        const merges = [];
-        let moved = false;
-        
-        // 创建新的网格来存储结果
-        const newGrid = [];
-        for (let i = 0; i < this.size; i++) {
-            newGrid[i] = [];
-            for (let j = 0; j < this.size; j++) {
-                newGrid[i][j] = null;
-            }
-        }
-        
-        // 根据方向处理移动
-        if (direction === 'left') {
-            for (let row = 0; row < this.size; row++) {
-                const result = this.processLine(this.getRow(row), row, 0, 0, 1);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setRow(newGrid, row, result.line);
-            }
-        } else if (direction === 'right') {
-            for (let row = 0; row < this.size; row++) {
-                const result = this.processLine(this.getRow(row).reverse(), row, 3, 0, -1);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setRow(newGrid, row, result.line.reverse());
-            }
-        } else if (direction === 'up') {
-            for (let col = 0; col < this.size; col++) {
-                const result = this.processLine(this.getColumn(col), 0, col, 1, 0);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setColumn(newGrid, col, result.line);
-            }
-        } else if (direction === 'down') {
-            for (let col = 0; col < this.size; col++) {
-                const result = this.processLine(this.getColumn(col).reverse(), 3, col, -1, 0);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setColumn(newGrid, col, result.line.reverse());
-            }
-        }
+        const { moved, movements, merges, newGrid } = this.computeMove(direction);
         
         if (moved) {
             // 设置动画标志
@@ -530,6 +500,56 @@ class Game2048 {
                 }
             });
         }
+    }
+
+    // 统一的移动计算函数：返回是否移动、移动列表、合并列表和新的网格
+    computeMove(direction) {
+        const movements = [];
+        const merges = [];
+        let moved = false;
+        const newGrid = [];
+        for (let i = 0; i < this.size; i++) {
+            newGrid[i] = [];
+            for (let j = 0; j < this.size; j++) {
+                newGrid[i][j] = null;
+            }
+        }
+
+        if (direction === 'left') {
+            for (let row = 0; row < this.size; row++) {
+                const result = this.processLine(this.getRow(row), row, 0, 0, 1);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setRow(newGrid, row, result.line);
+            }
+        } else if (direction === 'right') {
+            for (let row = 0; row < this.size; row++) {
+                const result = this.processLine(this.getRow(row).reverse(), row, 3, 0, -1);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setRow(newGrid, row, result.line.reverse());
+            }
+        } else if (direction === 'up') {
+            for (let col = 0; col < this.size; col++) {
+                const result = this.processLine(this.getColumn(col), 0, col, 1, 0);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setColumn(newGrid, col, result.line);
+            }
+        } else if (direction === 'down') {
+            for (let col = 0; col < this.size; col++) {
+                const result = this.processLine(this.getColumn(col).reverse(), 3, col, -1, 0);
+                moved = result.moved || moved;
+                movements.push(...result.movements);
+                merges.push(...result.merges);
+                this.setColumn(newGrid, col, result.line.reverse());
+            }
+        }
+
+        return { moved, movements, merges, newGrid };
     }
     
     processLine(line, startRow, startCol, rowDir, colDir) {
@@ -915,6 +935,10 @@ class Game2048 {
         if (this.stateHistory.length > this.maxHistorySize) {
             this.stateHistory.shift();
         }
+        // 持久化保存当前游戏（自动保存）
+        try {
+            localStorage.setItem('gameState', JSON.stringify(state));
+        } catch (_) {}
     }
     
     undo() {
@@ -954,6 +978,8 @@ class Game2048 {
                 // 更新显示
                 this.updateDisplay();
                 this.updateUndoButton();
+                // 同步更新持久化状态到撤销后的状态
+                try { localStorage.setItem('gameState', JSON.stringify(previousState)); } catch (_) {}
                 
                 // 清除动画标志
                 this.isAnimating = false;
@@ -1100,6 +1126,7 @@ class Game2048 {
         this.random = this.createSeededRandom(this.randomSeed);
         
         this.hideMessage();
+        try { localStorage.removeItem('gameState'); } catch (_) {}
         this.setup();
     }
     
@@ -1534,54 +1561,8 @@ class Game2048 {
             currentTransforms[id] = transform;
         });
         
-        // 立即执行游戏逻辑，但暂时不更新显示
-        const movements = [];
-        const merges = [];
-        let moved = false;
-        
-        // 创建新的网格来存储结果
-        const newGrid = [];
-        for (let i = 0; i < this.size; i++) {
-            newGrid[i] = [];
-            for (let j = 0; j < this.size; j++) {
-                newGrid[i][j] = null;
-            }
-        }
-        
-        // 根据方向处理移动逻辑（复用原有逻辑）
-        if (direction === 'left') {
-            for (let row = 0; row < this.size; row++) {
-                const result = this.processLine(this.getRow(row), row, 0, 0, 1);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setRow(newGrid, row, result.line);
-            }
-        } else if (direction === 'right') {
-            for (let row = 0; row < this.size; row++) {
-                const result = this.processLine(this.getRow(row).reverse(), row, 3, 0, -1);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setRow(newGrid, row, result.line.reverse());
-            }
-        } else if (direction === 'up') {
-            for (let col = 0; col < this.size; col++) {
-                const result = this.processLine(this.getColumn(col), 0, col, 1, 0);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setColumn(newGrid, col, result.line);
-            }
-        } else if (direction === 'down') {
-            for (let col = 0; col < this.size; col++) {
-                const result = this.processLine(this.getColumn(col).reverse(), 3, col, -1, 0);
-                moved = result.moved || moved;
-                movements.push(...result.movements);
-                merges.push(...result.merges);
-                this.setColumn(newGrid, col, result.line.reverse());
-            }
-        }
+        // 立即执行游戏逻辑，但暂时不更新显示（与 move 逻辑一致）
+        const { moved, movements, merges, newGrid } = this.computeMove(direction);
         
         if (moved) {
             // 更新网格
@@ -1614,6 +1595,37 @@ class Game2048 {
                 this.isAnimating = false;
             }, 200);
         }
+    }
+
+    // 从存档初始化游戏状态
+    initFromState(state) {
+        this.tileContainer.innerHTML = '';
+        this.tiles = {};
+        this.grid = JSON.parse(JSON.stringify(state.grid || []));
+        this.score = state.score || 0;
+        this.undoCount = state.undoCount ?? this.initialUndoCount;
+        const seed = state.randomSeed || Date.now();
+        this.random = this.createSeededRandom(seed);
+        this.random.setSeed(seed);
+        this.tileId = state.tileId || 0;
+        this.hideMessage();
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                if (this.grid[i][j]) {
+                    this.createTileElement(i, j, this.grid[i][j], false, false);
+                }
+            }
+        }
+        this.stateHistory = [JSON.parse(JSON.stringify({
+            grid: this.grid,
+            score: this.score,
+            undoCount: this.undoCount,
+            randomSeed: seed,
+            tileId: this.tileId
+        }))];
+        this.scoreDisplay.textContent = this.score;
+        this.bestScoreDisplay.textContent = this.bestScore;
+        this.updateUndoButton();
     }
     
     // 从当前位置动画到最终位置
